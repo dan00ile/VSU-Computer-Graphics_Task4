@@ -2,7 +2,7 @@ package com.cgvsu.objreader;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.cgvsu.math.Vector3f;
+import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.model.Group;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.Polygon;

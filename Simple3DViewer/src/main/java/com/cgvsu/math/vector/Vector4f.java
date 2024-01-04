@@ -23,6 +23,13 @@ public class Vector4f implements IVector<Vector4f>{
         this.w = arr[3];
     }
 
+    public Vector4f(Vector3f vector3F) {
+        this.x = vector3F.getX();
+        this.y = vector3F.getY();
+        this.z = vector3F.getZ();
+        this.w = 1;
+    }
+
     /*
      * Получение вектора в виде массива столбца
      */
