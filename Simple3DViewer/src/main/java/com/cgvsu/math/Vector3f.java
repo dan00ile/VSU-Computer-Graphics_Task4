@@ -15,4 +15,8 @@ public class Vector3f {
     }
 
     public float x, y, z;
+
+    public String coordstoStringSplitBySpace() {
+        return x+" "+y+" "+z;
+    }
 }

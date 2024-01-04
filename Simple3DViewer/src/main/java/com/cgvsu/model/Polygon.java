@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class Polygon {
+
+    private String groupName;
     private List<Integer> vertexIndices;
     private List<Integer> textureVertexIndices;
     private List<Integer> normalIndices;
@@ -15,6 +17,7 @@ public class Polygon {
         vertexIndices = new ArrayList<>();
         textureVertexIndices = new ArrayList<>();
         normalIndices = new ArrayList<>();
+        groupName = "";
     }
 
     public List<Integer> getVertexIndices() {
@@ -41,6 +44,15 @@ public class Polygon {
         this.normalIndices = normalIndices;
     }
 
+    public void setGroupName(String groupName){
+        assert !groupName.equals("");
+        this.groupName = groupName;
+    }
+
+
+    public String getGroupName() {
+        return groupName;
+    }
 
 
     // Добавленные мной поля и методы
