@@ -32,10 +32,10 @@ public class GraphicConveyor {
         resultZ = resultZ.normalization();
 
         float[] matrix = new float[]{
-                resultX.x, resultY.x, resultZ.x, 0,
-                resultX.y, resultY.y, resultZ.y, 0,
-                resultX.z, resultY.z, resultZ.z, 0,
-                -resultX.dotProduct(eye), -resultY.dotProduct(eye), -resultZ.dotProduct(eye), 1};
+                resultX.x, resultX.y, resultX.z, -resultX.dotProduct(eye),
+                resultY.x, resultY.y, resultY.z, -resultY.dotProduct(eye),
+                resultZ.x, resultZ.y, resultZ.z, -resultZ.dotProduct(eye),
+                0, 0, 0, 1};
         return new Matrix4x4(matrix);
     }
 
@@ -49,16 +49,16 @@ public class GraphicConveyor {
         result.setValue(0,0, tangentMinusOnDegree / aspectRatio);
         result.setValue(1, 1, tangentMinusOnDegree);
         result.setValue(2, 2, (farPlane + nearPlane) / (farPlane - nearPlane));
-        result.setValue(2,3, 1.0F);
-        result.setValue(3, 2, 2 * (nearPlane * farPlane) / (nearPlane - farPlane));
+        result.setValue(3,2, 1.0F);
+        result.setValue(2, 3, 2 * (nearPlane * farPlane) / (nearPlane - farPlane));
         return result;
     }
 
-    public static Vector3f multiplyMatrix4ByVector3(final Matrix4x4 matrix, final Vector3f vertex) {
-        final float x = (vertex.x * matrix.getValue(0,0)) + (vertex.y * matrix.getValue(1,0)) + (vertex.z * matrix.getValue(2,0)) + matrix.getValue(3,0);
-        final float y = (vertex.x * matrix.getValue(0,1)) + (vertex.y * matrix.getValue(1,1)) + (vertex.z * matrix.getValue(2,1)) + matrix.getValue(3,1);
-        final float z = (vertex.x * matrix.getValue(0,2)) + (vertex.y * matrix.getValue(1,2)) + (vertex.z * matrix.getValue(2,2)) + matrix.getValue(3,2);
-        final float w = (vertex.x * matrix.getValue(0,3)) + (vertex.y * matrix.getValue(1,3)) + (vertex.z * matrix.getValue(2,3)) + matrix.getValue(3,3);
+    public static Vector3f multiplyMatrix4ByVector3(Matrix4x4 matrix, final Vector3f vertex) {
+        final float x = (vertex.x * matrix.getValue(0,0)) + (vertex.y * matrix.getValue(0,1)) + (vertex.z * matrix.getValue(0,2)) + matrix.getValue(0,3);
+        final float y = (vertex.x * matrix.getValue(1,0)) + (vertex.y * matrix.getValue(1,1)) + (vertex.z * matrix.getValue(1,2)) + matrix.getValue(1,3);
+        final float z = (vertex.x * matrix.getValue(2,0)) + (vertex.y * matrix.getValue(2,1)) + (vertex.z * matrix.getValue(2,2)) + matrix.getValue(2,3);
+        final float w = (vertex.x * matrix.getValue(3,0)) + (vertex.y * matrix.getValue(3,1)) + (vertex.z * matrix.getValue(3,2)) + matrix.getValue(3,3);
         return new Vector3f(x / w, y / w, z / w);
     }
 

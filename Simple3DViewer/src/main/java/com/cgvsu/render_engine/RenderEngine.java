@@ -22,9 +22,9 @@ public class RenderEngine {
         Matrix4x4 viewMatrix = camera.getViewMatrix();
         Matrix4x4 projectionMatrix = camera.getProjectionMatrix();
 
-        Matrix4x4 modelViewProjectionMatrix = new Matrix4x4(modelMatrix.getArr())
+        Matrix4x4 modelViewProjectionMatrix = new Matrix4x4(projectionMatrix.getArr())
                 .mulMatrix(viewMatrix)
-                .mulMatrix(projectionMatrix);
+                .mulMatrix(modelMatrix);
 
 
         final int nPolygons = mesh.getPolygons().size();

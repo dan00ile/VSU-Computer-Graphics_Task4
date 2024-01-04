@@ -14,12 +14,6 @@ public class Model {
     private List<Polygon> polygons = new ArrayList<>();
 
 
-
-    // Добавленные мной поля и методы
-    // TODO: скопировать себе в проект все, что находится ниже
-
-
-
     private List<Group> groups = new ArrayList<>();
 
     public void addVertex(Vector3f vertex) {
