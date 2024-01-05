@@ -76,8 +76,6 @@ public class GuiController {
 
         canvas.setOnMousePressed(this::handleMousePressed);
         canvas.setOnMouseDragged(this::handleMouseDragged);
-        anchorPane.setOnKeyPressed(this::handleKeyPressed);
-        anchorPane.setOnKeyReleased(this::handleKeyReleased);
         canvas.setOnScroll(this::handleScroll);
 
         timeline = new Timeline();
@@ -111,7 +109,7 @@ public class GuiController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
 
-        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
         }
@@ -275,7 +273,6 @@ private void checkScale() {
     }
 
     private double mouseX, mouseY;
-    private boolean altModifier = false;
 
     private void handleMousePressed(MouseEvent event) {
         if (event.isMiddleButtonDown()) {
@@ -290,11 +287,9 @@ private void checkScale() {
             double deltaY = (event.getSceneY() - mouseY);
 
             try {
-                if (altModifier) {
-                    System.out.println(321);
+                if (event.isAltDown()) {
                     rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
                 } else {
-                    System.out.println(123);
                     translateCamera((float) deltaX,(float) deltaY);
                 }
             } catch (Exception e) {
@@ -367,17 +362,6 @@ private void checkScale() {
         camera.setTarget(new Vector3f(newTarget.x,newTarget.y, newTarget.z));
     }
 
-    private void handleKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ALT) {;
-            altModifier = true;
-        }
-    }
-
-    private void handleKeyReleased(KeyEvent event) {
-        if (event.getCode() == KeyCode.ALT) {
-            altModifier = false;
-        }
-    }
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
