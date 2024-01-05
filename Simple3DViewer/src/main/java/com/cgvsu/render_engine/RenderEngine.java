@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.math.vector.Vector3f;
+import com.cgvsu.math.vector.Vector4f;
 import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.math.vector.Vector2f;
 import com.cgvsu.math.matrix.Matrix4x4;
@@ -35,8 +36,14 @@ public class RenderEngine {
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 Vector3f vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
 
+                Vector4f multiVertex = modelViewProjectionMatrix.mulVector(new Vector4f(vertex));
 
-                Vector2f resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertex), width, height);
+                float w = multiVertex.getW();
+                w = (w == 0? 1 : w);
+
+                multiVertex = multiVertex.div(w);
+
+                Vector2f resultPoint = vertexToPoint(multiVertex, width, height);
 
 
                 resultPoints.add(resultPoint);

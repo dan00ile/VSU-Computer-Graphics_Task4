@@ -1,10 +1,10 @@
 package com.cgvsu.math.vector;
 
 public class Vector4f implements IVector<Vector4f>{
-    public float x;
-    public float y;
-    public float z;
-    public float w;
+    private final float x;
+    private final float y;
+    private final float z;
+    private final float w;
 
     public Vector4f(float x, float y, float z, float w) {
         this.x = x;

@@ -1,15 +1,22 @@
 package com.cgvsu.math.vector;
 
 public class Vector3f implements IVector<Vector3f>{
-    public float x;
-    public float y;
-    public float z;
+    private final float x;
+    private final float y;
+    private final float z;
 
     public Vector3f(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
+
+    public Vector3f(Vector4f vector) {
+        this.x = vector.getX();
+        this.y = vector.getY();
+        this.z = vector.getZ();
+    }
+
 
     public Vector3f(float[] arr) {
         if (arr.length != 3) {

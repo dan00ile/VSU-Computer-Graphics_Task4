@@ -340,11 +340,11 @@ private void checkScale() {
         Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
         Vector4f newUp = b.returnFinalMatrix().mulVector(new Vector4f(camera.getUp()));
 
-        camera.setPosition(new Vector3f(newEye.x,newEye.y, newEye.z));
-        camera.setUp(new Vector3f(newUp.x,newUp.y, newUp.z));
+        camera.setPosition(new Vector3f(newEye));
+        camera.setUp(new Vector3f(newUp));
     }
 
-    private void translateCamera(float deltaX, float deltaY) throws Exception {
+    private void translateCamera(float deltaX, float deltaY) {
         Vector3f lastEye = camera.getPosition();
         Vector3f target = camera.getTarget();
 

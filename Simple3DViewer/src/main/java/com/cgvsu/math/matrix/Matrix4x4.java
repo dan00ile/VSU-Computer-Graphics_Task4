@@ -5,7 +5,7 @@ import com.cgvsu.math.vector.Vector4f;
 import java.util.Arrays;
 
 public class Matrix4x4 implements IMatrix<Matrix4x4, Vector4f> {
-    private float[][] matrix = new float[4][4];
+    private final float[][] matrix = new float[4][4];
 
 
 

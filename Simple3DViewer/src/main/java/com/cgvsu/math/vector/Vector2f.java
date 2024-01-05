@@ -1,8 +1,8 @@
 package com.cgvsu.math.vector;
 
 public class Vector2f implements IVector<Vector2f> {
-    public float x;
-    public float y;
+    private final float x;
+    private final float y;
 
     public Vector2f(float x, float y) {
         this.x = x;

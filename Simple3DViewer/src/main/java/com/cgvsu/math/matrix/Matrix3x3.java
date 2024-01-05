@@ -3,7 +3,7 @@ package com.cgvsu.math.matrix;
 import com.cgvsu.math.vector.Vector3f;
 
 public class Matrix3x3 implements IMatrix<Matrix3x3, Vector3f> {
-    private float[][] matrix = new float[3][3];
+    private final float[][] matrix = new float[3][3];
 
     public Matrix3x3(
             float a11, float a12, float a13,
