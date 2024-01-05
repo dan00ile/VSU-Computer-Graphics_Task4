@@ -107,6 +107,8 @@ public class Model {
         return groups;
     }
 
+
+    // метод поиска геометрического центра модели
     public Vector3f getCenter() {
         Vector3f center = new Vector3f(0,0,0);
         for (Vector3f v : this.vertices) {
@@ -117,6 +119,7 @@ public class Model {
         return center;
     }
 
+    // максимальное расстояние от вершины фигуры до ее центра масс
     public float getMaxDistanceFromCenter() {
         Vector3f center = this.getCenter();
         float maxLength = 0;

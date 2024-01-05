@@ -68,6 +68,8 @@ public class GuiController {
             1.0F, 1, 0.01F, 100);
 
     private Timeline timeline;
+    private Vector3f lastMove = new Vector3f(0, 0, 0);
+    private double mouseX, mouseY;
 
     @FXML
     private void initialize() {
@@ -121,13 +123,13 @@ public class GuiController {
             mesh = ObjReader.read(fileContent);
             modelTransformation.put(mesh, new ModelAffine());
             setCameraOnMesh(mesh);
-        // todo: обработка ошибок
-    } catch (IOException exception) {
+            // todo: обработка ошибок
+        } catch (IOException exception) {
 
+        }
     }
-}
 
-private void checkScale() {
+    private void checkScale() {
         ArrayList<Spinner<Double>> list = new ArrayList<>();
 
         list.add(spinnerScaleX);
@@ -223,6 +225,7 @@ private void checkScale() {
         checkTranslate();
         setCameraOnMesh(mesh);
     }
+
     private void affineSpinnersReset() {
         ModelAffine a = (modelTransformation.get(mesh) != null ?
                 new ModelAffine(modelTransformation.get(mesh)) : new ModelAffine());
@@ -240,16 +243,15 @@ private void checkScale() {
 
     private void setCameraOnMesh(Model mesh) {
         affineSpinnersReset();
-        setCameraStandartWay(mesh, AxisEnum.Z);
+        setCameraInitially(mesh, AxisEnum.Z);
     }
-    private void setCameraStandartWay(Model mesh, AxisEnum axis) {
+
+    private void setCameraInitially(Model mesh, AxisEnum axis) {
         Vector3f middle = new Vector3f(0, 0, 0);
 
         if (mesh != null) {
             distance = mesh.getMaxDistanceFromCenter() * 2;
             middle = mesh.getCenter();
-            System.out.println(middle);
-
             camera.setNearPlane(0.1f * distance);
             camera.setFarPlane(10 * distance);
         }
@@ -272,7 +274,7 @@ private void checkScale() {
 
     }
 
-    private double mouseX, mouseY;
+
 
     private void handleMousePressed(MouseEvent event) {
         if (event.isMiddleButtonDown()) {
@@ -290,7 +292,7 @@ private void checkScale() {
                 if (event.isAltDown()) {
                     rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
                 } else {
-                    translateCamera((float) deltaX * 0.05f,(float) deltaY * 0.05f);
+                    translateCamera((float) deltaX * 0.05f, (float) deltaY * 0.05f);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -300,25 +302,25 @@ private void checkScale() {
             mouseY = event.getSceneY();
         }
     }
-    private Vector3f lastMove = new Vector3f(0,0,0);
+
+
+
     private void handleScroll(ScrollEvent event) {
         double deltaY = event.getDeltaY();
+        Vector3f lastEye = camera.getPosition();
 
-        Vector3f eyeToTarget = camera.getTarget().sub(camera.getPosition());
-        boolean stopApproach = eyeToTarget.length() <= camera.getNearPlane();
+        Vector3f eyeToTarget = camera.getTarget().sub(lastEye);
+        boolean stopFlag = eyeToTarget.length() <= camera.getNearPlane();
 
         eyeToTarget = eyeToTarget.normalization().mul(distance * 0.1f);
 
-        float x = eyeToTarget.getX();
-        float y = eyeToTarget.getY();
-        float z = eyeToTarget.getZ();
+        // можно удалить
+        Vector3f movePosition = new Vector3f(eyeToTarget.getX(), eyeToTarget.getY(), eyeToTarget.getZ());
 
-        Vector3f movePosition = new Vector3f(x, y, z);
-
-        if (deltaY > 0 && !stopApproach) {
+        if (deltaY > 0 && !stopFlag) {
             camera.setPosition(camera.getPosition().add(movePosition));
         } else if (deltaY < 0) {
-            if (stopApproach) {
+            if (stopFlag) {
                 movePosition = lastMove;
             }
             camera.setPosition(camera.getPosition().sub(movePosition));
@@ -349,11 +351,11 @@ private void checkScale() {
         Vector3f target = camera.getTarget();
 
         // Вычисляем вектор от камеры к цели
-        Vector3f cameraToTarget = lastEye.sub(target).normalization();
+        Vector3f eyeToTarget = lastEye.sub(target).normalization();
 
         // Вычисляем вектор, перпендикулярный вектору от камеры к цели
         Vector3f up = camera.getUp().normalization();
-        Vector3f right = up.vectorProduct(cameraToTarget).normalization();
+        Vector3f right = up.vectorProduct(eyeToTarget).normalization();
 
         // Перемещаем камеру относительно цели
         Vector3f translation = right.mul(deltaX).add(up.mul(deltaY));
@@ -364,40 +366,36 @@ private void checkScale() {
     }
 
 
-
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, -TRANSLATION));
+        setCameraInitially(mesh, AxisEnum.Z);
     }
 
     @FXML
-    public void handleCameraBackward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, TRANSLATION));
+    public void handleCameraBackward(ActionEvent actionEvent) throws Exception {
+        setCameraInitially(mesh, AxisEnum.Z);
+        rotateCamera(0.5f, 0);
     }
 
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(TRANSLATION, 0, 0));
-        camera.moveTarget(new Vector3f(TRANSLATION, 0,0));
+        setCameraInitially(mesh, AxisEnum.X);
     }
 
     @FXML
-    public void handleCameraRight(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(-TRANSLATION, 0, 0));
-        camera.moveTarget(new Vector3f(-TRANSLATION, 0,0));
+    public void handleCameraRight(ActionEvent actionEvent) throws Exception {
+        setCameraInitially(mesh, AxisEnum.X);
+        rotateCamera(0.5f, 0);
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, TRANSLATION, 0));
-        camera.moveTarget(new Vector3f(0, TRANSLATION,0));
-        camera.moveUp(new Vector3f(0, TRANSLATION,0));
+        setCameraInitially(mesh, AxisEnum.Y);
     }
 
     @FXML
-    public void handleCameraDown(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
-        camera.moveTarget(new Vector3f(0, -TRANSLATION,0));
-        camera.moveUp(new Vector3f(0, -TRANSLATION,0));
+    public void handleCameraDown(ActionEvent actionEvent) throws Exception {
+        setCameraInitially(mesh, AxisEnum.Y);
+        rotateCamera(0, 0.5f);
     }
 }
