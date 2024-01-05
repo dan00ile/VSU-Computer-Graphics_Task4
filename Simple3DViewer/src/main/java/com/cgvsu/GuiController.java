@@ -18,6 +18,7 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -62,7 +63,7 @@ public class GuiController {
     private Model mesh = null;
 
     private Camera camera = new Camera(
-            new Vector3f(0, 0, 100),
+            new Vector3f(0, 0, 10),
             new Vector3f(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
@@ -75,8 +76,9 @@ public class GuiController {
 
         canvas.setOnMousePressed(this::handleMousePressed);
         canvas.setOnMouseDragged(this::handleMouseDragged);
-        canvas.setOnKeyPressed(this::handleKeyPressed);
-        canvas.setOnKeyReleased(this::handleKeyReleased);
+        anchorPane.setOnKeyPressed(this::handleKeyPressed);
+        anchorPane.setOnKeyReleased(this::handleKeyReleased);
+        canvas.setOnScroll(this::handleScroll);
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -273,7 +275,7 @@ private void checkScale() {
     }
 
     private double mouseX, mouseY;
-    private double altModifier = 1.0;
+    private boolean altModifier = false;
 
     private void handleMousePressed(MouseEvent event) {
         if (event.isMiddleButtonDown()) {
@@ -288,7 +290,13 @@ private void checkScale() {
             double deltaY = (event.getSceneY() - mouseY);
 
             try {
-                rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
+                if (altModifier) {
+                    System.out.println(321);
+                    rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
+                } else {
+                    System.out.println(123);
+                    translateCamera((float) deltaX,(float) deltaY);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -296,6 +304,32 @@ private void checkScale() {
             mouseX = event.getSceneX();
             mouseY = event.getSceneY();
         }
+    }
+    private Vector3f lastMove = new Vector3f(0,0,0);
+    private void handleScroll(ScrollEvent event) {
+        double deltaY = event.getDeltaY();
+
+        Vector3f eyeToTarget = camera.getTarget().sub(camera.getPosition());
+        boolean stopApproach = eyeToTarget.length() <= camera.getNearPlane();
+
+        eyeToTarget = eyeToTarget.normalization().mul(distance * 0.1f);
+
+        float x = eyeToTarget.getX();
+        float y = eyeToTarget.getY();
+        float z = eyeToTarget.getZ();
+
+        Vector3f movePosition = new Vector3f(x, y, z);
+
+        if (deltaY > 0 && !stopApproach) {
+            camera.setPosition(camera.getPosition().add(movePosition));
+        } else if (deltaY < 0) {
+            if (stopApproach) {
+                movePosition = lastMove;
+            }
+            camera.setPosition(camera.getPosition().sub(movePosition));
+        }
+
+        lastMove = movePosition;
     }
 
     private void rotateCamera(float deltaX, float deltaY) throws Exception {
@@ -315,15 +349,33 @@ private void checkScale() {
         camera.setUp(new Vector3f(newUp.x,newUp.y, newUp.z));
     }
 
+    private void translateCamera(float deltaX, float deltaY) throws Exception {
+        Vector3f lastEye = camera.getPosition();
+        Vector3f target = camera.getTarget();
+        AffineBuilder b = new AffineBuilder();
+        if (deltaY != 0) {
+            b.translate().byY(deltaY).close();
+        }
+        if (deltaX != 0) {
+            b.translate().byX(deltaX).close();
+        }
+
+        Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
+        Vector4f newTarget = b.returnFinalMatrix().mulVector(new Vector4f(target));
+
+        camera.setPosition(new Vector3f(newEye.x,newEye.y, newEye.z));
+        camera.setTarget(new Vector3f(newTarget.x,newTarget.y, newTarget.z));
+    }
+
     private void handleKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ALT) {
-            altModifier = 1;
+        if (event.getCode() == KeyCode.ALT) {;
+            altModifier = true;
         }
     }
 
     private void handleKeyReleased(KeyEvent event) {
         if (event.getCode() == KeyCode.ALT) {
-            altModifier = 0;
+            altModifier = false;
         }
     }
 
@@ -340,20 +392,26 @@ private void checkScale() {
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(TRANSLATION, 0, 0));
+        camera.moveTarget(new Vector3f(TRANSLATION, 0,0));
     }
 
     @FXML
     public void handleCameraRight(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(-TRANSLATION, 0, 0));
+        camera.moveTarget(new Vector3f(-TRANSLATION, 0,0));
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, TRANSLATION, 0));
+        camera.moveTarget(new Vector3f(0, TRANSLATION,0));
+        camera.moveUp(new Vector3f(0, TRANSLATION,0));
     }
 
     @FXML
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
+        camera.moveTarget(new Vector3f(0, -TRANSLATION,0));
+        camera.moveUp(new Vector3f(0, -TRANSLATION,0));
     }
 }

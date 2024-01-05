@@ -33,6 +33,18 @@ public class Camera {
         this.aspectRatio = aspectRatio;
     }
 
+    public float getAspectRatio() {
+        return aspectRatio;
+    }
+
+    public float getNearPlane() {
+        return nearPlane;
+    }
+
+    public float getFarPlane() {
+        return farPlane;
+    }
+
     public Vector3f getPosition() {
         return position;
     }
@@ -68,7 +80,11 @@ public class Camera {
     }
 
     public void moveTarget(final Vector3f translation) {
-        this.target = this.target.add(target);
+        this.target = this.target.add(translation);
+    }
+
+    public void moveUp(final Vector3f translation) {
+        this.up = this.up.add(translation);
     }
 
     Matrix4x4 getViewMatrix() {
