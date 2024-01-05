@@ -2,6 +2,7 @@ package com.cgvsu.render_engine;
 
 import java.util.ArrayList;
 
+import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.math.vector.Vector3f;
 import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.math.vector.Vector2f;
@@ -16,9 +17,8 @@ public class RenderEngine {
             final Camera camera,
             final Model mesh,
             final int width,
-            final int height)
-    {
-        Matrix4x4 modelMatrix = rotateScaleTranslate();
+            final int height, ModelAffine transformMatr) throws Exception {
+        Matrix4x4 modelMatrix = transformMatr.modelMatrix();
         Matrix4x4 viewMatrix = camera.getViewMatrix();
         Matrix4x4 projectionMatrix = camera.getProjectionMatrix();
 
@@ -37,6 +37,8 @@ public class RenderEngine {
 
 
                 Vector2f resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertex), width, height);
+
+
                 resultPoints.add(resultPoint);
             }
 

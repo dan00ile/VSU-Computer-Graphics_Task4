@@ -43,6 +43,9 @@ public class Model {
         }
     }
 
+    public Model() {}
+
+
     public void addVertex(Vector3f vertex) {
         vertices.add(vertex);
     }

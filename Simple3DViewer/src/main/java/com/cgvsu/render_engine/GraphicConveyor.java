@@ -26,7 +26,6 @@ public class GraphicConveyor {
         Vector3f resultX = up.vectorProduct(resultZ);
         Vector3f resultY = resultZ.vectorProduct(resultX);
 
-
         resultX = resultX.normalization();
         resultY = resultY.normalization();
         resultZ = resultZ.normalization();
