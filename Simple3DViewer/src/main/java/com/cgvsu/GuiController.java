@@ -1,8 +1,11 @@
 package com.cgvsu;
 
+import com.cgvsu.affine.AffineBuilder.AffineBuilder;
 import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.affine.AffineBuilder.Rotate;
+import com.cgvsu.affine.AxisEnum;
 import com.cgvsu.math.vector.Vector3f;
+import com.cgvsu.math.vector.Vector4f;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
@@ -12,6 +15,9 @@ import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -32,6 +38,8 @@ import com.cgvsu.render_engine.Camera;
 public class GuiController {
 
     final private float TRANSLATION = 0.5F;
+
+    private float distance = 10;
 
     private Map<Model, ModelAffine> modelTransformation = new HashMap<>();
     public Spinner<Double> spinnerScaleY;
@@ -64,6 +72,11 @@ public class GuiController {
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
+
+        canvas.setOnMousePressed(this::handleMousePressed);
+        canvas.setOnMouseDragged(this::handleMouseDragged);
+        canvas.setOnKeyPressed(this::handleKeyPressed);
+        canvas.setOnKeyReleased(this::handleKeyReleased);
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -107,13 +120,14 @@ public class GuiController {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
             modelTransformation.put(mesh, new ModelAffine());
-            // todo: обработка ошибок
-        } catch (IOException exception) {
+            setCameraOnMesh(mesh);
+        // todo: обработка ошибок
+    } catch (IOException exception) {
 
-        }
     }
+}
 
-    private void checkScale() {
+private void checkScale() {
         ArrayList<Spinner<Double>> list = new ArrayList<>();
 
         list.add(spinnerScaleX);
@@ -207,8 +221,110 @@ public class GuiController {
         checkRotate();
         checkScale();
         checkTranslate();
+        setCameraOnMesh(mesh);
+    }
+    private void affineSpinnersReset() {
+        ModelAffine a = (modelTransformation.get(mesh) != null ?
+                new ModelAffine(modelTransformation.get(mesh)) : new ModelAffine());
 
+        spinnerScaleX.getValueFactory().setValue((double) (a.getScale().getX()));
+        spinnerScaleY.getValueFactory().setValue((double) (a.getScale().getY()));
+        spinnerScaleZ.getValueFactory().setValue((double) (a.getScale().getZ()));
+        spinnerRotateX.getValueFactory().setValue((double) (a.getRotate().getX()));
+        spinnerRotateY.getValueFactory().setValue((double) (a.getRotate().getY()));
+        spinnerRotateZ.getValueFactory().setValue((double) (a.getRotate().getZ()));
+        spinnerTranslateX.getValueFactory().setValue((double) (a.getTranslate().getX()));
+        spinnerTranslateY.getValueFactory().setValue((double) (a.getTranslate().getY()));
+        spinnerTranslateZ.getValueFactory().setValue((double) (a.getTranslate().getZ()));
+    }
 
+    private void setCameraOnMesh(Model mesh) {
+        affineSpinnersReset();
+        setCameraStandartWay(mesh, AxisEnum.Z);
+    }
+    private void setCameraStandartWay(Model mesh, AxisEnum axis) {
+        Vector3f middle = new Vector3f(0, 0, 0);
+
+        if (mesh != null) {
+            distance = mesh.getMaxDistanceFromCenter() * 2;
+            middle = mesh.getCenter();
+            System.out.println(middle);
+
+            camera.setNearPlane(0.1f * distance);
+            camera.setFarPlane(10 * distance);
+        }
+
+        camera.setTarget(middle);
+        switch (axis) {
+            case X -> {
+                camera.setPosition(new Vector3f(distance, 0, 0).add(middle));
+                camera.setUp(new Vector3f(0, 1, 0));
+            }
+            case Y -> {
+                camera.setPosition(new Vector3f(0, distance, 0).add(middle));
+                camera.setUp(new Vector3f(1, 0, 0));
+            }
+            case Z -> {
+                camera.setPosition(new Vector3f(0, 0, distance).add(middle));
+                camera.setUp(new Vector3f(0, 1, 0));
+            }
+        }
+
+    }
+
+    private double mouseX, mouseY;
+    private double altModifier = 1.0;
+
+    private void handleMousePressed(MouseEvent event) {
+        if (event.isMiddleButtonDown()) {
+            mouseX = event.getSceneX();
+            mouseY = event.getSceneY();
+        }
+    }
+
+    private void handleMouseDragged(MouseEvent event) {
+        if (event.isMiddleButtonDown()) {
+            double deltaX = (event.getSceneX() - mouseX);
+            double deltaY = (event.getSceneY() - mouseY);
+
+            try {
+                rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            mouseX = event.getSceneX();
+            mouseY = event.getSceneY();
+        }
+    }
+
+    private void rotateCamera(float deltaX, float deltaY) throws Exception {
+        Vector3f lastEye = camera.getPosition();
+        AffineBuilder b = new AffineBuilder();
+        if (deltaY != 0) {
+            b.rotate().byX(360 * deltaY).close();
+        }
+        if (deltaX != 0) {
+            b.rotate().byY(360 * deltaX).close();
+        }
+
+        Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
+        Vector4f newUp = b.returnFinalMatrix().mulVector(new Vector4f(camera.getUp()));
+
+        camera.setPosition(new Vector3f(newEye.x,newEye.y, newEye.z));
+        camera.setUp(new Vector3f(newUp.x,newUp.y, newUp.z));
+    }
+
+    private void handleKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ALT) {
+            altModifier = 1;
+        }
+    }
+
+    private void handleKeyReleased(KeyEvent event) {
+        if (event.getCode() == KeyCode.ALT) {
+            altModifier = 0;
+        }
     }
 
     @FXML

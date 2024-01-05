@@ -17,10 +17,6 @@ public class GraphicConveyor {
         return new Matrix4x4(matrix);
     }
 
-    public static Matrix4x4 lookAt(Vector3f eye, Vector3f target) {
-        return lookAt(eye, target, new Vector3f(0F, 1.0F, 0F));
-    }
-
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
         Vector3f resultZ = target.sub(eye);
         Vector3f resultX = up.vectorProduct(resultZ);

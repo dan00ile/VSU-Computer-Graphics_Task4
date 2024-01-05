@@ -155,13 +155,15 @@ public class Vector3f implements IVector<Vector3f>{
         return new Vector3f(x, y, z);
     }
 
+
     /*
      * Сравнение векторов
      */
     @Override
     public boolean equals(Vector3f v) {
-        return Math.abs(this.x - v.x) < 1e-14 && Math.abs(this.y - v.y) < 1e-14 &&
-                Math.abs(this.z - v.z) < 1e-14;
+        double e = 1e-7;
+        return Math.abs(this.x - v.x) < e && Math.abs(this.y - v.y) < e &&
+                Math.abs(this.z - v.z) < e;
     }
 
     @Override

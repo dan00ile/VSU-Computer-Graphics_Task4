@@ -106,4 +106,25 @@ public class Model {
     public List<Group> getGroups() {
         return groups;
     }
+
+    public Vector3f getCenter() {
+        Vector3f center = new Vector3f(0,0,0);
+        for (Vector3f v : this.vertices) {
+            center.add(v);
+        }
+        center.div(this.vertices.size());
+
+        return center;
+    }
+
+    public float getMaxDistanceFromCenter() {
+        Vector3f center = this.getCenter();
+        float maxLength = 0;
+        for (Vector3f v : vertices) {
+            float thisLength = v.sub(center).length();
+            maxLength = Math.max(thisLength, maxLength);
+        }
+
+        return maxLength;
+    }
 }

@@ -21,7 +21,7 @@ public class Camera {
         this.farPlane = farPlane;
     }
 
-    public void setPosition(final Vector3f position) {
+    public void setPosition(Vector3f position) {
         this.position = position;
     }
 
@@ -37,6 +37,28 @@ public class Camera {
         return position;
     }
 
+    public void setFov(float fov) {
+        this.fov = fov;
+    }
+
+    public void setNearPlane(float nearPlane) {
+        this.nearPlane = nearPlane;
+    }
+
+    public void setFarPlane(float farPlane) {
+        this.farPlane = farPlane;
+    }
+
+    Vector3f up = new Vector3f(0F, 1F, 0F);
+
+    public void setUp(Vector3f up) {
+        this.up = up;
+    }
+
+    public Vector3f getUp() {
+        return up;
+    }
+
     public Vector3f getTarget() {
         return target;
     }
@@ -50,7 +72,7 @@ public class Camera {
     }
 
     Matrix4x4 getViewMatrix() {
-        return GraphicConveyor.lookAt(position, target);
+        return GraphicConveyor.lookAt(position, target, up);
     }
 
     Matrix4x4 getProjectionMatrix() {
