@@ -45,7 +45,6 @@ public class RenderEngine {
 
                 Vector2f resultPoint = vertexToPoint(multiVertex, width, height);
 
-
                 resultPoints.add(resultPoint);
             }
 

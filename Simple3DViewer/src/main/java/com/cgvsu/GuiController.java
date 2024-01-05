@@ -367,34 +367,34 @@ public class GuiController {
 
 
     @FXML
-    public void handleCameraForward(ActionEvent actionEvent) {
+    public void handleCameraForward() {
         setCameraInitially(mesh, AxisEnum.Z);
     }
 
     @FXML
-    public void handleCameraBackward(ActionEvent actionEvent) throws Exception {
+    public void handleCameraBackward() throws Exception {
         setCameraInitially(mesh, AxisEnum.Z);
         rotateCamera(0.5f, 0);
     }
 
     @FXML
-    public void handleCameraLeft(ActionEvent actionEvent) {
+    public void handleCameraLeft() {
         setCameraInitially(mesh, AxisEnum.X);
     }
 
     @FXML
-    public void handleCameraRight(ActionEvent actionEvent) throws Exception {
+    public void handleCameraRight() throws Exception {
         setCameraInitially(mesh, AxisEnum.X);
         rotateCamera(0.5f, 0);
     }
 
     @FXML
-    public void handleCameraUp(ActionEvent actionEvent) {
+    public void handleCameraUp() {
         setCameraInitially(mesh, AxisEnum.Y);
     }
 
     @FXML
-    public void handleCameraDown(ActionEvent actionEvent) throws Exception {
+    public void handleCameraDown() throws Exception {
         setCameraInitially(mesh, AxisEnum.Y);
         rotateCamera(0, 0.5f);
     }
