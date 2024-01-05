@@ -290,7 +290,7 @@ private void checkScale() {
                 if (event.isAltDown()) {
                     rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
                 } else {
-                    translateCamera((float) deltaX,(float) deltaY);
+                    translateCamera((float) deltaX * 0.05f,(float) deltaY * 0.05f);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -347,20 +347,22 @@ private void checkScale() {
     private void translateCamera(float deltaX, float deltaY) throws Exception {
         Vector3f lastEye = camera.getPosition();
         Vector3f target = camera.getTarget();
-        AffineBuilder b = new AffineBuilder();
-        if (deltaY != 0) {
-            b.translate().byY(deltaY).close();
-        }
-        if (deltaX != 0) {
-            b.translate().byX(deltaX).close();
-        }
 
-        Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
-        Vector4f newTarget = b.returnFinalMatrix().mulVector(new Vector4f(target));
+        // Вычисляем вектор от камеры к цели
+        Vector3f cameraToTarget = lastEye.sub(target).normalization();
 
-        camera.setPosition(new Vector3f(newEye.x,newEye.y, newEye.z));
-        camera.setTarget(new Vector3f(newTarget.x,newTarget.y, newTarget.z));
+        // Вычисляем вектор, перпендикулярный вектору от камеры к цели
+        Vector3f up = camera.getUp().normalization();
+        Vector3f right = up.vectorProduct(cameraToTarget).normalization();
+
+        // Перемещаем камеру относительно цели
+        Vector3f translation = right.mul(deltaX).add(up.mul(deltaY));
+
+
+        camera.setPosition(lastEye.add(translation));
+        camera.setTarget(target.add(translation));
     }
+
 
 
     @FXML
