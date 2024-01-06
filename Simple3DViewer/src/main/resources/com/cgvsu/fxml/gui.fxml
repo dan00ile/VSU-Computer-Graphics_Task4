@@ -5,7 +5,12 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="784.0" prefWidth="1485.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
+   <Pane prefHeight="784.0" prefWidth="1485.0" AnchorPane.topAnchor="30.0">
+      <children>
+          <Canvas fx:id="canvas" height="784.0" width="1485.0" />
+      </children>
+   </Pane>
     <MenuBar>
         <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
@@ -76,27 +81,24 @@
             <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
-                        <Label text="X: "/>
-                        <Spinner fx:id="spinnerRotateX" amountToStepBy="0.1" editable="true" initialValue="1" max="1000"
-                                 min="-1000"/>
+                        <Label text="X: " />
+                        <Spinner fx:id="spinnerRotateX" amountToStepBy="0.1" editable="true" initialValue="1" max="1000" min="-1000" />
                     </VBox>
                 </content>
             </CustomMenuItem>
             <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
-                        <Label text="Y: "/>
-                        <Spinner fx:id="spinnerRotateY" amountToStepBy="0.1" editable="true" initialValue="1"
-                                 max="1000" min="-1000"/>
+                        <Label text="Y: " />
+                        <Spinner fx:id="spinnerRotateY" amountToStepBy="0.1" editable="true" initialValue="1" max="1000" min="-1000" />
                     </VBox>
                 </content>
             </CustomMenuItem>
             <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
-                        <Label text="Z: "/>
-                        <Spinner fx:id="spinnerRotateZ" amountToStepBy="0.1" editable="true" initialValue="1"
-                                 max="1000" min="-1000"/>
+                        <Label text="Z: " />
+                        <Spinner fx:id="spinnerRotateZ" amountToStepBy="0.1" editable="true" initialValue="1" max="1000" min="-1000" />
                     </VBox>
                 </content>
             </CustomMenuItem>
@@ -105,32 +107,41 @@
             <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
-                        <Label text="X: "/>
-                        <Spinner fx:id="spinnerTranslateX" amountToStepBy="0.1" editable="true" initialValue="1"
-                                 max="1000" min="-1000"/>
+                        <Label text="X: " />
+                        <Spinner fx:id="spinnerTranslateX" amountToStepBy="0.1" editable="true" initialValue="1" max="1000" min="-1000" />
                     </VBox>
                 </content>
             </CustomMenuItem>
             <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
-                        <Label text="Y: "/>
-                        <Spinner fx:id="spinnerTranslateY" amountToStepBy="0.1" editable="true" initialValue="1"
-                                 max="1000" min="-1000"/>
+                        <Label text="Y: " />
+                        <Spinner fx:id="spinnerTranslateY" amountToStepBy="0.1" editable="true" initialValue="1" max="1000" min="-1000" />
                     </VBox>
                 </content>
             </CustomMenuItem>
             <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
-                        <Label text="Z: "/>
-                        <Spinner fx:id="spinnerTranslateZ" amountToStepBy="0.1" editable="true" initialValue="1"
-                                 max="1000" min="-1000"/>
+                        <Label text="Z: " />
+                        <Spinner fx:id="spinnerTranslateZ" amountToStepBy="0.1" editable="true" initialValue="1" max="1000" min="-1000" />
                     </VBox>
                 </content>
             </CustomMenuItem>
         </Menu>
     </MenuBar>
-
-    <Canvas fx:id="canvas" height="870" width="1600" AnchorPane.topAnchor="30.0" />
+   <TabPane layoutY="552.0" prefHeight="232.0" prefWidth="249.0" tabClosingPolicy="UNAVAILABLE">
+     <tabs>
+       <Tab text="Untitled Tab 1">
+         <content>
+           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+         </content>
+       </Tab>
+       <Tab text="Untitled Tab 2">
+         <content>
+           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+         </content>
+       </Tab>
+     </tabs>
+   </TabPane>
 </AnchorPane>
