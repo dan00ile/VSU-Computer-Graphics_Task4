@@ -174,7 +174,7 @@ public class Matrix3x3 implements IMatrix<Matrix3x3, Vector3f> {
         float[] arrResult = new float[3];
         for (int i = 0; i < 3; i++) {
             for (int k = 0; k < 3; k++) {
-                arrResult[i] += this.getValue(i, k) * vector.getVector()[k][0];
+                arrResult[i] += this.getValue(i, k) * vector.getVector()[k];
             }
         }
         return new Vector3f(arrResult[0], arrResult[1], arrResult[2]);
@@ -245,7 +245,7 @@ public class Matrix3x3 implements IMatrix<Matrix3x3, Vector3f> {
             }
         }
         for (int i = 0; i < 3; i++) {
-            inputArr[i][3] = vector.getVector()[i][0];
+            inputArr[i][3] = vector.getVector()[i];
         }
         float[] arrOutput = SearchGaussMethod.gaussMethod(inputArr);
         return new Vector3f(arrOutput[0], arrOutput[1], arrOutput[2]);

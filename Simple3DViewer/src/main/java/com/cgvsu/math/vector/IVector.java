@@ -19,5 +19,5 @@ public interface IVector<T extends IVector<T>> {
 
     String toString();
 
-    float[][] getVector();
+    float[] getVector();
 }

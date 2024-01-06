@@ -187,13 +187,13 @@ public class Matrix4x4 implements IMatrix<Matrix4x4, Vector4f> {
      */
     @Override
     public Vector4f mulVector(Vector4f vector) {
-        float[][] arrResult = new float[4][1];
+        float[] arrResult = new float[4];
         for (int i = 0; i < 4; i++) {
             for (int k = 0; k < 4; k++) {
-                arrResult[i][0] += this.getValue(i, k) * vector.getVector()[k][0];
+                arrResult[i] += this.getValue(i, k) * vector.getVector()[k];
             }
         }
-        return new Vector4f(arrResult[0][0], arrResult[1][0], arrResult[2][0], arrResult[3][0]);
+        return new Vector4f(arrResult[0], arrResult[1], arrResult[2], arrResult[3]);
     }
 
     /*
@@ -256,7 +256,7 @@ public class Matrix4x4 implements IMatrix<Matrix4x4, Vector4f> {
             }
         }
         for (int i = 0; i < 4; i++) {
-            inputArr[i][4] = vector.getVector()[i][0];
+            inputArr[i][4] = vector.getVector()[i];
         }
         float[] arrOutput = SearchGaussMethod.gaussMethod(inputArr);
         return new Vector4f(arrOutput[0], arrOutput[1], arrOutput[2], arrOutput[3]);

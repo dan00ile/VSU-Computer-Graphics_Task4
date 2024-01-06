@@ -36,15 +36,9 @@ public class RenderEngine {
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 Vector3f vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
 
-                Vector4f multiVertex = modelViewProjectionMatrix.mulVector(new Vector4f(vertex));
+                Vector3f result = multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertex);
 
-                float w = multiVertex.getW();
-                w = (w == 0? 1 : w);
-
-                multiVertex = multiVertex.div(w);
-
-                Vector2f resultPoint = vertexToPoint(multiVertex, width, height);
-
+                Vector2f resultPoint = vertexToPoint(result, width, height);
                 resultPoints.add(resultPoint);
             }
 
@@ -64,4 +58,6 @@ public class RenderEngine {
                         resultPoints.get(0).getY());
         }
     }
+
+
 }

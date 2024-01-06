@@ -21,8 +21,8 @@ public class Vector2f implements IVector<Vector2f> {
      * Получение вектора в виде массива столбца
      */
     @Override
-    public float[][] getVector() {
-        return new float[][]{{x}, {y}};
+    public float[] getVector() {
+        return new float[]{x, y};
     }
 
     /*

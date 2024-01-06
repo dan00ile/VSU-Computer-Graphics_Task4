@@ -40,7 +40,19 @@ public class GraphicConveyor {
         return result;
     }
 
-    public static Vector2f vertexToPoint(final Vector4f vertex, final int width, final int height) {
+    public static Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
         return new Vector2f(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
     }
+
+    public static Vector3f multiplyMatrix4ByVector3(Matrix4x4 matrix, final Vector3f vertex) {
+        Vector4f multiVertex = matrix.mulVector(new Vector4f(vertex));
+
+        float w = multiVertex.getW();
+        w = (w == 0? 1 : w);
+
+        multiVertex = multiVertex.div(w);
+
+        return new Vector3f(multiVertex.getX(), multiVertex.getY(), multiVertex.getZ());
+    }
+
 }

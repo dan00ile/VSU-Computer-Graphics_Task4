@@ -31,8 +31,8 @@ public class Vector3f implements IVector<Vector3f>{
      * Получение вектора в виде массива столбца
      */
     @Override
-    public float[][] getVector() {
-        return new float[][]{{x}, {y}, {z}};
+    public float[] getVector() {
+        return new float[]{x, y, z};
     }
 
     /*

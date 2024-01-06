@@ -342,8 +342,9 @@ public class GuiController {
         Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
         Vector4f newUp = b.returnFinalMatrix().mulVector(new Vector4f(camera.getUp()));
 
-        camera.setPosition(new Vector3f(newEye));
-        camera.setUp(new Vector3f(newUp));
+        camera.setPosition(new Vector3f(newEye.getX(),newEye.getY(), newEye.getZ()));
+        camera.setUp(new Vector3f(newUp.getX(),newUp.getY(), newUp.getZ()));
+
     }
 
     private void translateCamera(float deltaX, float deltaY) {
