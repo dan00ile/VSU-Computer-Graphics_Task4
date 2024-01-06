@@ -1,26 +1,27 @@
-package com.cgvsu;
+package com.cgvsu.gui;
 
+import com.cgvsu.Pivot;
 import com.cgvsu.affine.AffineBuilder.AffineBuilder;
 import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.affine.AffineBuilder.Rotate;
 import com.cgvsu.affine.AxisEnum;
+import com.cgvsu.math.matrix.Matrix4x4;
 import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.math.vector.Vector4f;
+import com.cgvsu.model.ModelAxis;
 import com.cgvsu.render_engine.RenderEngine;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.cgvsu.model.Model;
@@ -37,12 +39,14 @@ import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 
 public class GuiController {
-
-    final private float TRANSLATION = 0.5F;
+    public TableView<LoadedModel> tableView;
+    public TableColumn<LoadedModel, CheckBox> isActive;
+    public TableColumn<LoadedModel, String> modelPath;
+    public TableColumn<LoadedModel, CheckBox> isFrozen;
 
     private float distance = 10;
-
-    private Map<Model, ModelAffine> modelTransformation = new HashMap<>();
+    private List<LoadedModel> models = new ArrayList<>();
+    private Map<LoadedModel, ModelAffine> modelTransformation = new HashMap<>();
     public Spinner<Double> spinnerScaleY;
     public Spinner<Double> spinnerScaleZ;
     public Spinner<Double> spinnerScaleX;
@@ -59,8 +63,7 @@ public class GuiController {
     @FXML
     private Canvas canvas;
 
-
-    private Model mesh = null;
+    Model activeMesh = null;
 
     private Camera camera = new Camera(
             new Vector3f(0, 0, 10),
@@ -70,6 +73,7 @@ public class GuiController {
     private Timeline timeline;
     private Vector3f lastMove = new Vector3f(0, 0, 0);
     private double mouseX, mouseY;
+    private Pivot pivot = new Pivot();
 
     @FXML
     private void initialize() {
@@ -84,15 +88,19 @@ public class GuiController {
         timeline.setCycleCount(Animation.INDEFINITE);
 
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            double width = canvas.getWidth();
-            double height = canvas.getHeight();
+            if (activeMesh != null) {
+                double width = canvas.getWidth();
+                double height = canvas.getHeight();
 
-            canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-            camera.setAspectRatio((float) (width / height));
+                canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
+                camera.setAspectRatio((float) (width / height));
 
-            if (mesh != null) {
                 try {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, modelTransformation.get(mesh));
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(camera.getNearPlane() * 10),
+                            (int) width, (int) height, new ModelAffine());
+                    for (LoadedModel model : models) {
+                        RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, modelTransformation.get(model));
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -100,6 +108,8 @@ public class GuiController {
         });
 
         checkSpinners();
+
+        //  anchorPane.getChildren().add(pivot);
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
@@ -120,115 +130,53 @@ public class GuiController {
 
         try {
             String fileContent = Files.readString(fileName);
-            mesh = ObjReader.read(fileContent);
-            modelTransformation.put(mesh, new ModelAffine());
-            setCameraOnMesh(mesh);
-            // todo: обработка ошибок
+            activeMesh = ObjReader.read(fileContent);
+
+            LoadedModel newModel = new LoadedModel(activeMesh, fileName.toString());
+
+            CheckBox checkBox1 = new CheckBox();
+            newModel.setIsActive(checkBox1);
+            CheckBox checkBox2 = new CheckBox();
+            checkBox2.setDisable(true);
+            newModel.setIsFrozen(checkBox2);
+            checkBox1.setOnAction(event -> {
+                // Если checkBox1 выбран, активируем checkBox2, иначе деактивируем
+                checkBox2.setDisable(!checkBox1.isSelected());
+                if (!checkBox1.isSelected()) {
+                    checkBox2.setSelected(false);
+                }
+
+            });
+
+            final ObservableList<LoadedModel> data = tableView.getItems();
+
+            data.add(newModel);
+            models.add(newModel);
+            tableView.setItems(data);
+
+            modelTransformation.put(newModel, new ModelAffine());
+            setCameraOnMesh(newModel);
+
         } catch (IOException exception) {
 
         }
     }
 
-    private void checkScale() {
-        ArrayList<Spinner<Double>> list = new ArrayList<>();
+    private void setPivotOnMesh(Model mesh) {
 
-        list.add(spinnerScaleX);
-        list.add(spinnerScaleY);
-        list.add(spinnerScaleZ);
-
-        for (Spinner<Double> spinner : list) {
-            spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == null) {
-                    spinner.getValueFactory().setValue(0.0);
-                }
-                checkScaleSpinner();
-            });
-        }
+        pivot.attachToModel(mesh);
     }
 
-    private void checkScaleSpinner() {
-        float x = spinnerScaleX.getValue().floatValue();
-        float y = spinnerScaleY.getValue().floatValue();
-        float z = spinnerScaleZ.getValue().floatValue();
-        Vector3f scale = new Vector3f(x, y, z);
-
-        try {
-            modelTransformation.get(mesh).setScale(scale);
-        } catch (Exception e) {
-
-        }
-    }
-
-    private void checkTranslate() {
-        ArrayList<Spinner<Double>> list = new ArrayList<>();
-
-        list.add(spinnerTranslateX);
-        list.add(spinnerTranslateY);
-        list.add(spinnerTranslateZ);
-
-        for (Spinner<Double> spinner : list) {
-            spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == null) {
-                    spinner.getValueFactory().setValue(0.0);
-                }
-                checkTranslateSpinner();
-            });
-        }
-    }
-
-    private void checkTranslateSpinner() {
-        float x = spinnerTranslateX.getValue().floatValue();
-        float y = spinnerTranslateY.getValue().floatValue();
-        float z = spinnerTranslateZ.getValue().floatValue();
-        Vector3f translate = new Vector3f(x, y, z);
-
-        try {
-            modelTransformation.get(mesh).setTranslate(translate);
-        } catch (Exception e) {
-
-        }
-    }
-
-    private void checkRotate() {
-        ArrayList<Spinner<Double>> list = new ArrayList<>();
-
-        list.add(spinnerRotateX);
-        list.add(spinnerRotateY);
-        list.add(spinnerRotateZ);
-
-        for (Spinner<Double> spinner : list) {
-            spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == null) {
-                    spinner.getValueFactory().setValue(0.0);
-                }
-                checkRotateSpinner();
-            });
-        }
-    }
-
-    private void checkRotateSpinner() {
-        float x = spinnerRotateX.getValue().floatValue();
-        float y = spinnerRotateY.getValue().floatValue();
-        float z = spinnerRotateZ.getValue().floatValue();
-        Vector3f rotate = new Vector3f(x, y, z);
-
-        try {
-            modelTransformation.get(mesh).setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
-        } catch (Exception e) {
-
-        }
-    }
 
     private void checkSpinners() {
         checkRotate();
         checkScale();
         checkTranslate();
-        setCameraOnMesh(mesh);
     }
 
     private void affineSpinnersReset() {
-        ModelAffine a = (modelTransformation.get(mesh) != null ?
-                new ModelAffine(modelTransformation.get(mesh)) : new ModelAffine());
+        ModelAffine a = (modelTransformation.get(activeMesh) != null ?
+                new ModelAffine(modelTransformation.get(activeMesh)) : new ModelAffine());
 
         spinnerScaleX.getValueFactory().setValue((double) (a.getScale().getX()));
         spinnerScaleY.getValueFactory().setValue((double) (a.getScale().getY()));
@@ -274,8 +222,6 @@ public class GuiController {
 
     }
 
-
-
     private void handleMousePressed(MouseEvent event) {
         if (event.isMiddleButtonDown()) {
             mouseX = event.getSceneX();
@@ -302,8 +248,6 @@ public class GuiController {
             mouseY = event.getSceneY();
         }
     }
-
-
 
     private void handleScroll(ScrollEvent event) {
         double deltaY = event.getDeltaY();
@@ -342,8 +286,8 @@ public class GuiController {
         Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
         Vector4f newUp = b.returnFinalMatrix().mulVector(new Vector4f(camera.getUp()));
 
-        camera.setPosition(new Vector3f(newEye.getX(),newEye.getY(), newEye.getZ()));
-        camera.setUp(new Vector3f(newUp.getX(),newUp.getY(), newUp.getZ()));
+        camera.setPosition(new Vector3f(newEye.getX(), newEye.getY(), newEye.getZ()));
+        camera.setUp(new Vector3f(newUp.getX(), newUp.getY(), newUp.getZ()));
 
     }
 
@@ -366,37 +310,127 @@ public class GuiController {
         camera.setTarget(target.add(translation));
     }
 
+    private void checkScale() {
+        ArrayList<Spinner<Double>> list = new ArrayList<>();
+
+        list.add(spinnerScaleX);
+        list.add(spinnerScaleY);
+        list.add(spinnerScaleZ);
+
+        for (Spinner<Double> spinner : list) {
+            spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    spinner.getValueFactory().setValue(0.0);
+                }
+                checkScaleSpinner();
+            });
+        }
+    }
+
+    private void checkScaleSpinner() {
+        float x = spinnerScaleX.getValue().floatValue();
+        float y = spinnerScaleY.getValue().floatValue();
+        float z = spinnerScaleZ.getValue().floatValue();
+        Vector3f scale = new Vector3f(x, y, z);
+
+        try {
+            modelTransformation.get(activeMesh).setScale(scale);
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void checkTranslate() {
+        ArrayList<Spinner<Double>> list = new ArrayList<>();
+
+        list.add(spinnerTranslateX);
+        list.add(spinnerTranslateY);
+        list.add(spinnerTranslateZ);
+
+        for (Spinner<Double> spinner : list) {
+            spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    spinner.getValueFactory().setValue(0.0);
+                }
+                checkTranslateSpinner();
+            });
+        }
+    }
+
+    private void checkTranslateSpinner() {
+        float x = spinnerTranslateX.getValue().floatValue();
+        float y = spinnerTranslateY.getValue().floatValue();
+        float z = spinnerTranslateZ.getValue().floatValue();
+        Vector3f translate = new Vector3f(x, y, z);
+
+        try {
+            modelTransformation.get(activeMesh).setTranslate(translate);
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void checkRotate() {
+        ArrayList<Spinner<Double>> list = new ArrayList<>();
+
+        list.add(spinnerRotateX);
+        list.add(spinnerRotateY);
+        list.add(spinnerRotateZ);
+
+        for (Spinner<Double> spinner : list) {
+            spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    spinner.getValueFactory().setValue(0.0);
+                }
+                checkRotateSpinner();
+            });
+        }
+    }
+
+    private void checkRotateSpinner() {
+        float x = spinnerRotateX.getValue().floatValue();
+        float y = spinnerRotateY.getValue().floatValue();
+        float z = spinnerRotateZ.getValue().floatValue();
+        Vector3f rotate = new Vector3f(x, y, z);
+
+        try {
+            modelTransformation.get(activeMesh).setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
+        } catch (Exception e) {
+
+        }
+    }
+
 
     @FXML
     public void handleCameraForward() {
-        setCameraInitially(mesh, AxisEnum.Z);
+        setCameraInitially(activeMesh, AxisEnum.Z);
     }
 
     @FXML
     public void handleCameraBackward() throws Exception {
-        setCameraInitially(mesh, AxisEnum.Z);
+        setCameraInitially(activeMesh, AxisEnum.Z);
         rotateCamera(0.5f, 0);
     }
 
     @FXML
     public void handleCameraLeft() {
-        setCameraInitially(mesh, AxisEnum.X);
+        setCameraInitially(activeMesh, AxisEnum.X);
     }
 
     @FXML
     public void handleCameraRight() throws Exception {
-        setCameraInitially(mesh, AxisEnum.X);
+        setCameraInitially(activeMesh, AxisEnum.X);
         rotateCamera(0.5f, 0);
     }
 
     @FXML
     public void handleCameraUp() {
-        setCameraInitially(mesh, AxisEnum.Y);
+        setCameraInitially(activeMesh, AxisEnum.Y);
     }
 
     @FXML
     public void handleCameraDown() throws Exception {
-        setCameraInitially(mesh, AxisEnum.Y);
+        setCameraInitially(activeMesh, AxisEnum.Y);
         rotateCamera(0, 0.5f);
     }
 }

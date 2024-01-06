@@ -3,6 +3,7 @@ package com.cgvsu.affine.AffineBuilder;
 import com.cgvsu.affine.AffineExceptions;
 import com.cgvsu.affine.AffineMatrix;
 import com.cgvsu.affine.AxisEnum;
+import com.cgvsu.math.matrix.Matrix4x4;
 import com.cgvsu.math.vector.Vector3f;
 
 public class Rotate {
@@ -33,6 +34,7 @@ public class Rotate {
 
         return this;
     }
+
 
     public Rotate byAxisInDegrees(AxisEnum axisEnum, double angle) throws Exception {
         return byAxisInRadians(axisEnum, Math.toRadians(angle));
@@ -127,5 +129,6 @@ public class Rotate {
     public AffineBuilder close() {
         return builder;
     }
+
 
 }

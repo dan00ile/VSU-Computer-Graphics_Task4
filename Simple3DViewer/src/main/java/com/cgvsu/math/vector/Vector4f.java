@@ -30,6 +30,14 @@ public class Vector4f implements IVector<Vector4f>{
         this.w = 1;
     }
 
+    public Vector4f(Vector3f vector3F, float w) {
+        this.x = vector3F.getX();
+        this.y = vector3F.getY();
+        this.z = vector3F.getZ();
+        this.w = w;
+    }
+
+
     /*
      * Получение вектора в виде массива столбца
      */
