@@ -2,8 +2,11 @@ package com.cgvsu.gui;
 
 import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.affine.AffineBuilder.Rotate;
+import com.cgvsu.affine.AffineMatrix;
 import com.cgvsu.affine.AxisEnum;
+import com.cgvsu.math.matrix.Matrix4x4;
 import com.cgvsu.math.vector.Vector3f;
+import com.cgvsu.math.vector.Vector4f;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelAxis;
 import com.cgvsu.objreader.ObjReader;
@@ -139,7 +142,7 @@ public class GuiController {
                 camera.setAspectRatio((float) (width / height));
 
                 try {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(20),
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(camera.getNearPlane() * 10),
                             (int) width, (int) height, new ModelAffine());
                     for (LoadedModel model : models) {
                         if (model.isActive()) {
@@ -277,7 +280,7 @@ public class GuiController {
                 if (event.isAltDown()) {
                     rotateCamera((float) (deltaX / canvas.getWidth()), (float) (deltaY / canvas.getWidth()));
                 } else {
-                    translateCamera((float) deltaX * 0.05f, (float) deltaY * 0.05f);
+                    translateCamera((float) deltaX, (float) deltaY);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -311,88 +314,47 @@ public class GuiController {
 
         lastMove = movePosition;
     }
-/*
-    private void rotateCamera(float deltaX, float deltaY) throws Exception {
-        Vector3f lastEye = camera.getPosition();
-        AffineBuilder b = new AffineBuilder();
-        if (deltaY != 0) {
-            b.rotate().byX(360 * deltaY).close();
-        }
-        if (deltaX != 0) {
-            b.rotate().byY(360 * deltaX).close();
-        }
-
-        Vector4f newEye = b.returnFinalMatrix().mulVector(new Vector4f(lastEye));
-        Vector4f newUp = b.returnFinalMatrix().mulVector(new Vector4f(camera.getUp()));
-
-        camera.setPosition(new Vector3f(newEye.getX(), newEye.getY(), newEye.getZ()));
-        camera.setUp(new Vector3f(newUp.getX(), newUp.getY(), newUp.getZ()));
-
-    }
-
- */
 
     public void rotateCamera(float deltaX, float deltaY) {
-        float rotationSpeed = 360f; // Регулируйте скорость вращения по вашему усмотрению
+        float rotationSpeed = 360f;
         float angleX = deltaX * rotationSpeed;
         float angleY = deltaY * rotationSpeed;
 
-        // Переводим углы в радианы
         angleX = (float) Math.toRadians(angleX);
         angleY = (float) Math.toRadians(angleY);
 
-        // Вращение вокруг вертикальной оси (вверх и вниз)
         rotateCameraVertical(angleY);
-
-        // Вращение вокруг горизонтальной оси (влево и вправо)
         rotateCameraHorizontal(angleX);
     }
 
     private void rotateCameraVertical(float angle) {
-        // Вычисление нового вектора направления камеры
-        Vector3f direction = camera.getTarget().sub(camera.getPosition());
+        Vector3f direction = camera.getTarget().sub(camera.getPosition()).normalize();
         Vector3f right = direction.vectorProduct(camera.getUp()).normalize();
 
-        // Поворот вектора направления
-        Vector3f newDirection = rotate(direction, -angle, right);
-
-        // Пересчет новой позиции камеры
-        camera.setPosition(camera.getTarget().sub(newDirection));
-        camera.setUp(rotate(camera.getUp(), -angle, right));
+        Matrix4x4 rotationMatrix = AffineMatrix.rotateAroundAxis(right, -angle);
+        rotateCamera(rotationMatrix);
     }
 
     private void rotateCameraHorizontal(float angle) {
-        // Вычисление нового вектора направления камеры
+        Matrix4x4 rotationMatrix = AffineMatrix.rotateAroundAxis(camera.getUp(), angle);
+        rotateCamera(rotationMatrix);
+    }
+
+    private void rotateCamera(Matrix4x4 rotationMatrix) {
         Vector3f direction = camera.getTarget().sub(camera.getPosition());
-        Vector3f up = camera.getUp().normalize();
+        Vector4f newDirection = new Vector4f(direction.getX(), direction.getY(), direction.getZ(), 1.0f);
 
-        // Поворот вектора направления
-        Vector3f newDirection = rotate(direction, angle, camera.getUp());
+        newDirection = rotationMatrix.mulVector(newDirection);
 
-        // Пересчет новой позиции камеры
-        camera.setPosition(camera.getTarget().sub(newDirection));
-        camera.setUp(rotate(camera.getUp(), angle, up));
+        camera.setPosition(camera.getTarget().sub(new Vector3f(newDirection.getX(), newDirection.getY(), newDirection.getZ())));
+        camera.setUp(new Vector3f(rotationMatrix.mulVector(new Vector4f(camera.getUp()))));
     }
 
 
-    public Vector3f rotate(Vector3f my ,float angle, Vector3f axis) {
-        float sinHalfAngle = (float) Math.sin(angle / 2);
-        float cosHalfAngle = (float) Math.cos(angle / 2);
-
-        float rx = axis.getX() * sinHalfAngle;
-        float ry = axis.getY() * sinHalfAngle;
-        float rz = axis.getZ() * sinHalfAngle;
-        float rw = cosHalfAngle;
-
-        Quaternion rotation = new Quaternion(rx, ry, rz, rw);
-        Quaternion conjugate = rotation.conjugate();
-
-        Quaternion result = rotation.mul(my).mul(conjugate);
-
-        return new Vector3f(result.x, result.y, result.z);
-    }
-// TODO: перемещение камеры зависит от размера модели
+    // TODO: перемещение камеры зависит от размера модели
     private void translateCamera(float deltaX, float deltaY) {
+        float speed = 0.01f;
+
         Vector3f lastEye = camera.getPosition();
         Vector3f target = camera.getTarget();
 
@@ -404,8 +366,7 @@ public class GuiController {
         Vector3f right = up.vectorProduct(eyeToTarget).normalize();
 
         // Перемещаем камеру относительно цели
-        Vector3f translation = right.mul(deltaX).add(up.mul(deltaY));
-
+        Vector3f translation = right.mul(deltaX*speed).add(up.mul(deltaY*speed));
 
         camera.setPosition(lastEye.add(translation));
         camera.setTarget(target.add(translation));
