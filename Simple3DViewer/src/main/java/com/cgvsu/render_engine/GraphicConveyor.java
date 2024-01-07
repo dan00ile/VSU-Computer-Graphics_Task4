@@ -2,13 +2,13 @@ package com.cgvsu.render_engine;
 
 import com.cgvsu.math.vector.Vector2f;
 import com.cgvsu.math.vector.Vector3f;
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.math.vector.Vector4f;
 
 
 public class GraphicConveyor {
 
-    public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
+    public static Matrix4f lookAt(Vector3f eye, Vector3f target, Vector3f up) {
         Vector3f resultZ = target.sub(eye);
         Vector3f resultX = up.vectorProduct(resultZ);
         Vector3f resultY = resultZ.vectorProduct(resultX);
@@ -22,15 +22,15 @@ public class GraphicConveyor {
                 resultY.getX(), resultY.getY(), resultY.getZ(), -resultY.dotProduct(eye),
                 resultZ.getX(), resultZ.getY(), resultZ.getZ(), -resultZ.dotProduct(eye),
                 0, 0, 0, 1};
-        return new Matrix4x4(matrix);
+        return new Matrix4f(matrix);
     }
 
-    public static Matrix4x4 perspective(
+    public static Matrix4f perspective(
             final float fov,
             final float aspectRatio,
             final float nearPlane,
             final float farPlane) {
-        Matrix4x4 result = new Matrix4x4();
+        Matrix4f result = new Matrix4f();
         float tangentMinusOnDegree = (float) (1.0F / (Math.tan(fov * 0.5F)));
         result.setValue(0,0, tangentMinusOnDegree / aspectRatio);
         result.setValue(1, 1, tangentMinusOnDegree);
@@ -44,7 +44,7 @@ public class GraphicConveyor {
         return new Vector2f(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
     }
 
-    public static Vector3f multiplyMatrix4ByVector3(Matrix4x4 matrix, final Vector3f vertex) {
+    public static Vector3f multiplyMatrix4ByVector3(Matrix4f matrix, final Vector3f vertex) {
         Vector4f multiVertex = matrix.mulVector(new Vector4f(vertex));
 
         float w = multiVertex.getW();

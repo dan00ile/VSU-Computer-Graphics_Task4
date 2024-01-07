@@ -1,47 +1,46 @@
 package com.cgvsu.math.matrix;
 
-import com.cgvsu.math.matrix.Matrix4x4;
 import com.cgvsu.math.vector.Vector4f;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Matrix4x4Test {
+public class Matrix4FTest {
     @Test
     void zeroMatrix() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0);
-        Matrix4x4 matrix2 = new Matrix4x4();
+        Matrix4f matrix2 = new Matrix4f();
         Assertions.assertTrue(matrix1.equals(matrix2));
     }
 
     @Test
     void identityMatrix() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1);
-        Matrix4x4 matrix2 = Matrix4x4.identityMatrix();
+        Matrix4f matrix2 = Matrix4f.identityMatrix();
         Assertions.assertTrue(matrix1.equals(matrix2));
     }
 
     @Test
     void add() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 2, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
                 13, 14, 15, 16);
-        Matrix4x4 matrix2 = new Matrix4x4(
+        Matrix4f matrix2 = new Matrix4f(
                 4, 5, 3, 1,
                 4, 5, 6, 9,
                 0, 5, 5, 5,
                 6, -7 ,8, 0);
-        Matrix4x4 matrixResult = matrix1.add(matrix2);
-        Matrix4x4 matrix = new Matrix4x4(
+        Matrix4f matrixResult = matrix1.add(matrix2);
+        Matrix4f matrix = new Matrix4f(
                 5, 7, 6, 5,
                 9, 11, 13, 17,
                 9, 15, 16, 17,
@@ -51,17 +50,17 @@ public class Matrix4x4Test {
 
     @Test
     void sub() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 2, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
                 13, 14, 15, 16);
-        Matrix4x4 matrix2 = new Matrix4x4(4, 5, 3, 1,
+        Matrix4f matrix2 = new Matrix4f(4, 5, 3, 1,
                 4, 5, 6, 9,
                 0, 5, 5, 5,
                 6, -7 ,8, 0);
-        Matrix4x4 matrixResult = matrix1.sub(matrix2);
-        Matrix4x4 matrix = new Matrix4x4(
+        Matrix4f matrixResult = matrix1.sub(matrix2);
+        Matrix4f matrix = new Matrix4f(
                 -3, -3, 0, 3,
                 1, 1, 1, -1,
                 9, 5, 6, 7,
@@ -71,18 +70,18 @@ public class Matrix4x4Test {
 
     @Test
     void product() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 2, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
                 13, 14, 15, 16);
-        Matrix4x4 matrix2 = new Matrix4x4(
+        Matrix4f matrix2 = new Matrix4f(
                 4, 5, 3, 1,
                 4, 5, 6, 9,
                 0, 5, 5, 5,
                 6, -7 ,8, 0);
-        Matrix4x4 matrixResult = matrix1.mulMatrix(matrix2);
-        Matrix4x4 matrix = new Matrix4x4(
+        Matrix4f matrixResult = matrix1.mulMatrix(matrix2);
+        Matrix4f matrix = new Matrix4f(
                 36, 2, 62, 34,
                 92, 34, 150, 94,
                 148, 66, 238, 154,
@@ -92,18 +91,18 @@ public class Matrix4x4Test {
 
     @Test
     void product2() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 2, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
                 13, 14, 15, 16);
-        Matrix4x4 matrix2 = new Matrix4x4(
+        Matrix4f matrix2 = new Matrix4f(
                 4, 5, 3, 1,
                 4, 5, 6, 9,
                 0, 5, 5, 5,
                 6, -7 ,8, 0);
-        Matrix4x4 matrixResult = matrix1.mulMatrix(matrix2).mulMatrix(matrix2).add(matrix2);
-        Matrix4x4 matrix = new Matrix4x4(
+        Matrix4f matrixResult = matrix1.mulMatrix(matrix2).mulMatrix(matrix2).add(matrix2);
+        Matrix4f matrix = new Matrix4f(
                 360, 267, 705, 365,
                 1072, 727, 1988, 1157,
                 1780, 1187, 3267, 1937,
@@ -113,7 +112,7 @@ public class Matrix4x4Test {
 
     @Test
     void productVector() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 2, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
@@ -126,7 +125,7 @@ public class Matrix4x4Test {
 
     @Test
     void determinant() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 6, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
@@ -136,12 +135,12 @@ public class Matrix4x4Test {
 
     @Test
     void transposition() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 6, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
                 13, 14, 15, 0);
-        Matrix4x4 matrixTr = new Matrix4x4(
+        Matrix4f matrixTr = new Matrix4f(
                 1, 5, 9, 13,
                 6, 6, 10, 14,
                 3, 7, 11, 15,
@@ -151,12 +150,12 @@ public class Matrix4x4Test {
 
     @Test
     void inverseMatrix() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 1, 2, 3, 4,
                 2, 3, 1, 2,
                 1, 1, 1, -1,
                 1, 0, -2, -6);
-        Matrix4x4 matrixIn = new Matrix4x4(
+        Matrix4f matrixIn = new Matrix4f(
                 22, -6, -26, 17,
                 -17, 5, 20, -13,
                 -1, 0, 2, -1,
@@ -166,7 +165,7 @@ public class Matrix4x4Test {
 
     @Test
     void methodGauss() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 2, 5, 4, 1,
                 1, 3, 2, 1,
                 2, 10, 9, 7,
@@ -188,7 +187,7 @@ public class Matrix4x4Test {
 
     @Test
     void methodGauss2() {
-        Matrix4x4 matrix1 = new Matrix4x4(
+        Matrix4f matrix1 = new Matrix4f(
                 2, 5, 4, 1,
                 0, 0, 0, 0,
                 0, 0, 0, 0,

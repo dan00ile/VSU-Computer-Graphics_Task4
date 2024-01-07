@@ -4,11 +4,12 @@ import java.util.ArrayList;
 
 import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.math.vector.Vector3f;
-import com.cgvsu.math.vector.Vector4f;
 import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.math.vector.Vector2f;
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.model.Model;
+import javafx.scene.paint.Color;
+
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
 public class RenderEngine {
@@ -19,11 +20,11 @@ public class RenderEngine {
             final Model mesh,
             final int width,
             final int height, ModelAffine transformMatr) throws Exception {
-        Matrix4x4 modelMatrix = transformMatr.modelMatrix();
-        Matrix4x4 viewMatrix = camera.getViewMatrix();
-        Matrix4x4 projectionMatrix = camera.getProjectionMatrix();
+        Matrix4f modelMatrix = transformMatr.modelMatrix();
+        Matrix4f viewMatrix = camera.getViewMatrix();
+        Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
-        Matrix4x4 modelViewProjectionMatrix = new Matrix4x4(projectionMatrix.getArr())
+        Matrix4f modelViewProjectionMatrix = new Matrix4f(projectionMatrix.getArr())
                 .mulMatrix(viewMatrix)
                 .mulMatrix(modelMatrix);
 
@@ -41,7 +42,7 @@ public class RenderEngine {
                 Vector2f resultPoint = vertexToPoint(result, width, height);
                 resultPoints.add(resultPoint);
             }
-
+            graphicsContext.setStroke(Color.color(1,1,1));
             for (int vertexInPolygonInd = 1; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 graphicsContext.strokeLine(
                         resultPoints.get(vertexInPolygonInd - 1).getX(),

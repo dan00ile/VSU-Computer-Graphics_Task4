@@ -3,7 +3,6 @@ package com.cgvsu.affine.AffineBuilder;
 import com.cgvsu.affine.AffineExceptions;
 import com.cgvsu.affine.AffineMatrix;
 import com.cgvsu.affine.AxisEnum;
-import com.cgvsu.math.matrix.Matrix4x4;
 import com.cgvsu.math.vector.Vector3f;
 
 public class Rotate {

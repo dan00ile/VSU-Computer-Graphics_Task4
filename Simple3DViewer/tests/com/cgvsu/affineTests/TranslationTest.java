@@ -2,7 +2,7 @@ package com.cgvsu.affineTests;
 
 import com.cgvsu.affine.AffineBuilder.AffineBuilder;
 import com.cgvsu.affine.AffineMatrix;
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.model.Model;
 import org.junit.jupiter.api.Assertions;
@@ -94,7 +94,7 @@ public class TranslationTest {
 
     @Test
     public void testScaleMatrix() {
-        Matrix4x4 matrix = AffineMatrix.translateMatrix(new Vector3f(5.5f, -10.0f, 3.0f));
+        Matrix4f matrix = AffineMatrix.translateMatrix(new Vector3f(5.5f, -10.0f, 3.0f));
 
         float[][] result = matrix.getArr();
         float[][] expectedResult = new float[][]{{1.0f, 0.0f, 0.0f, 5.5f},

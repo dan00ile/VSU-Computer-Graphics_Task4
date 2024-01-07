@@ -4,7 +4,7 @@ import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.affine.AffineBuilder.Rotate;
 import com.cgvsu.affine.AffineMatrix;
 import com.cgvsu.affine.AxisEnum;
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.math.vector.Vector4f;
 import com.cgvsu.model.Model;
@@ -22,19 +22,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -79,8 +75,17 @@ public class GuiController {
     private Vector3f lastMove = new Vector3f(0, 0, 0);
     private double mouseX, mouseY;
 
+    private void selectModel(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+            LoadedModel selectedModel = tableView.getSelectionModel().getSelectedItem();
 
-
+            if (selectedModel != null) {
+                if (selectedModel.isActive()) {
+                    setCameraOnMesh(selectedModel);
+                }
+            }
+        }
+    }
     @FXML
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
@@ -89,7 +94,7 @@ public class GuiController {
         canvas.setOnMousePressed(this::handleMousePressed);
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnScroll(this::handleScroll);
-
+        tableView.setOnMouseClicked(this::selectModel);
 
 
         modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
@@ -97,18 +102,6 @@ public class GuiController {
         isActive.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getActive()));
 
         isFrozen.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getFrozen()));
-
-        tableView.setOnMouseClicked(event -> {
-            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                LoadedModel selectedModel = tableView.getSelectionModel().getSelectedItem();
-
-                if (selectedModel != null) {
-                    if (selectedModel.isActive()) {
-                        setCameraOnMesh(selectedModel);
-                    }
-                }
-            }
-        });
 
 
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -156,8 +149,6 @@ public class GuiController {
         });
 
         checkSpinners();
-
-        //  anchorPane.getChildren().add(pivot);
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
@@ -331,16 +322,16 @@ public class GuiController {
         Vector3f direction = camera.getTarget().sub(camera.getPosition()).normalize();
         Vector3f right = direction.vectorProduct(camera.getUp()).normalize();
 
-        Matrix4x4 rotationMatrix = AffineMatrix.rotateAroundAxis(right, -angle);
+        Matrix4f rotationMatrix = AffineMatrix.rotateAroundAxis(right, -angle);
         rotateCamera(rotationMatrix);
     }
 
     private void rotateCameraHorizontal(float angle) {
-        Matrix4x4 rotationMatrix = AffineMatrix.rotateAroundAxis(camera.getUp(), angle);
+        Matrix4f rotationMatrix = AffineMatrix.rotateAroundAxis(camera.getUp(), angle);
         rotateCamera(rotationMatrix);
     }
 
-    private void rotateCamera(Matrix4x4 rotationMatrix) {
+    private void rotateCamera(Matrix4f rotationMatrix) {
         Vector3f direction = camera.getTarget().sub(camera.getPosition());
         Vector4f newDirection = new Vector4f(direction.getX(), direction.getY(), direction.getZ(), 1.0f);
 
@@ -366,7 +357,7 @@ public class GuiController {
         Vector3f right = up.vectorProduct(eyeToTarget).normalize();
 
         // Перемещаем камеру относительно цели
-        Vector3f translation = right.mul(deltaX*speed).add(up.mul(deltaY*speed));
+        Vector3f translation = right.mul(deltaX * speed).add(up.mul(deltaY * speed));
 
         camera.setPosition(lastEye.add(translation));
         camera.setTarget(target.add(translation));
@@ -382,16 +373,9 @@ public class GuiController {
         for (Spinner<Double> spinner : list) {
             spinner.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == null) {
-                    spinner.getValueFactory().setValue(0.0);
+                    spinner.getValueFactory().setValue(1.0);
                 }
                 checkScaleSpinner();
-                spinner.getValueFactory().setValue(0.0);
-            });
-
-            spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
-
-                spinner.getValueFactory().setValue(1.0);
-
             });
         }
 
@@ -429,12 +413,6 @@ public class GuiController {
                 }
                 checkTranslateSpinner();
             });
-
-            spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
-
-                    spinner.getValueFactory().setValue(0.0);
-
-            });
         }
     }
 
@@ -449,9 +427,7 @@ public class GuiController {
                 if (!mesh.isFrozen() && mesh.isSelected()) {
                     ModelAffine affine = modelTransformation.get(mesh);
 
-                    Vector3f oldTranslate = affine.getTranslate();
-
-                    affine.setTranslate(oldTranslate.add( translate));
+                    affine.setTranslate(translate);
                 }
             }
         } catch (Exception e) {
@@ -474,11 +450,6 @@ public class GuiController {
                 checkRotateSpinner();
             });
 
-            spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
-
-                spinner.getValueFactory().setValue(0.0);
-
-            });
         }
     }
 
@@ -491,7 +462,9 @@ public class GuiController {
         try {
             for (LoadedModel mesh : models) {
                 if (!mesh.isFrozen() && mesh.isSelected()) {
-                    modelTransformation.get(mesh).setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
+                    ModelAffine affine = modelTransformation.get(mesh);
+
+                    affine.setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
                 }
             }
         } catch (Exception e) {

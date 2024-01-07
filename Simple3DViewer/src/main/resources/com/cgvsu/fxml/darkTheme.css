@@ -1,0 +1,56 @@
+#anchorPane {
+    -fx-background-color: #3d3d3d; /* Цвет фона */
+}
+
+#canvas {
+    --fx-background-color: #2b2b2b; /* Градиент от черного к серому */
+}
+
+#tableView {
+    -fx-control-inner-background: #333333; /* Цвет фона таблицы */
+    -fx-table-cell-border-color: #555555; /* Цвет границ ячеек таблицы */
+}
+
+
+
+.table-column {
+    -fx-text-fill: white; /* Цвет текста заголовка столбца */
+    -fx-border-color: #555555; /* Цвет границы заголовка столбца */
+    -fx-border-width: 0 0 1 0; /* Толщина границы: верхняя, правая, нижняя, левая */
+    -fx-border-insets: 0 0 1 0; /* Вставки границы: верхняя, правая, нижняя, левая */
+
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #555555;
+    -fx-text-fill: white;
+}
+
+.table-row-cell:focused {
+    -fx-background-color: #555555;
+    -fx-text-fill: white;
+}
+
+
+.menu-bar {
+    -fx-background-color: #2b2b2b; /* Цвет фона меню */
+}
+
+.menu {
+    -fx-background-color: #2b2b2b; /* Цвет фона пунктов меню */
+}
+
+.menu-item {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: white; /* Цвет текста пунктов меню */
+
+}
+
+.spinner {
+    -fx-background-color: #333333; /* Цвет фона спиннера */
+    -fx-text-fill: white; /* Цвет текста спиннера */
+}
+
+.label {
+    -fx-text-fill: white; /* Цвет текста меток */
+}

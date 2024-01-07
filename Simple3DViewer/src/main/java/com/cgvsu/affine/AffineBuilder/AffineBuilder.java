@@ -1,15 +1,15 @@
 package com.cgvsu.affine.AffineBuilder;
 
 import com.cgvsu.affine.AffineExceptions;
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.math.vector.Vector4f;
 import com.cgvsu.model.Model;
 public class AffineBuilder {
-    private Matrix4x4 finalMatrix;
+    private Matrix4f finalMatrix;
 
     private void resetFinalMatrix() {
-        this.finalMatrix = new Matrix4x4(new float[][]{  {1, 0, 0, 0},
+        this.finalMatrix = new Matrix4f(new float[][]{  {1, 0, 0, 0},
                                                         {0, 1, 0, 0},
                                                         {0, 0, 1, 0},
                                                         {0, 0, 0, 1},});
@@ -18,21 +18,21 @@ public class AffineBuilder {
     public AffineBuilder() {resetFinalMatrix();}
 
     public AffineBuilder(AffineBuilder builder) {
-        this.finalMatrix = new Matrix4x4(builder.finalMatrix.getArr());
+        this.finalMatrix = new Matrix4f(builder.finalMatrix.getArr());
     }
 
     public Scale scale() {
         return new Scale(this);
     }
 
-    protected void addScale(Matrix4x4 newScale) {
+    protected void addScale(Matrix4f newScale) {
         finalMatrix = newScale.mulMatrix(finalMatrix);
     }
 
     public Rotate rotate() {
         return new Rotate(this);
     }
-    protected void addRotate(Matrix4x4 newRotate) throws Exception {
+    protected void addRotate(Matrix4f newRotate) throws Exception {
         finalMatrix = newRotate.mulMatrix(finalMatrix);
     }
 
@@ -40,7 +40,7 @@ public class AffineBuilder {
         return new Translate(this);
     }
 
-    protected void addTranslate(Matrix4x4 newTranslate) {
+    protected void addTranslate(Matrix4f newTranslate) {
         for (int i = 0; i < newTranslate.getArr().length; i++) {
             newTranslate.getArr()[i][i] = 0;
         }
@@ -81,7 +81,7 @@ public class AffineBuilder {
         return new Vector3f(vector.getX(), vector.getY(), vector.getZ());
     }
 
-    public Matrix4x4 returnFinalMatrix() {
+    public Matrix4f returnFinalMatrix() {
         return finalMatrix;
     }
 }

@@ -1,7 +1,7 @@
 package com.cgvsu.affine.AffineBuilder;
 
 
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.model.Model;
 
@@ -35,7 +35,7 @@ public class ModelAffine {
         this.rotate = rotate;
         this.translate = translate;
     }
-    public Matrix4x4 modelMatrix() throws Exception {
+    public Matrix4f modelMatrix() throws Exception {
         builder = new AffineBuilder();
         if (scale != null) {
             builder.scale().byVector(scale).close();

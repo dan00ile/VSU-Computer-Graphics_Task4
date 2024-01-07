@@ -4,39 +4,39 @@ import com.cgvsu.math.vector.Vector3f;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Matrix3x3Test {
+public class Matrix3FTest {
     @Test
     void zeroMatrix() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 0, 0, 0,
                 0, 0, 0,
                 0, 0, 0);
-        Matrix3x3 matrix2 = new Matrix3x3();
+        Matrix3f matrix2 = new Matrix3f();
         Assertions.assertTrue(matrix1.equals(matrix2));
     }
 
     @Test
     void identityMatrix() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, 1);
-        Matrix3x3 matrix2 = Matrix3x3.identityMatrix();
+        Matrix3f matrix2 = Matrix3f.identityMatrix();
         Assertions.assertTrue(matrix1.equals(matrix2));
     }
 
     @Test
     void add() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 2, 3,
                 4, 5, 6,
                 7, 8, 9);
-        Matrix3x3 matrix2 = new Matrix3x3(
+        Matrix3f matrix2 = new Matrix3f(
                 4, 5, 3,
                 1, 4, 5,
                 6, 9, 0);
-        Matrix3x3 matrixResult = matrix1.add(matrix2);
-        Matrix3x3 matrix = new Matrix3x3(
+        Matrix3f matrixResult = matrix1.add(matrix2);
+        Matrix3f matrix = new Matrix3f(
                 5, 7, 6,
                 5, 9, 11,
                 13, 17, 9);
@@ -45,16 +45,16 @@ public class Matrix3x3Test {
 
     @Test
     void sub() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 2, 3,
                 4, 5, 6,
                 7, 8, 9);
-        Matrix3x3 matrix2 = new Matrix3x3(
+        Matrix3f matrix2 = new Matrix3f(
                 4, 5, 3,
                 1, 4, 5,
                 6, 9, 0);
-        Matrix3x3 matrixResult = matrix1.sub(matrix2);
-        Matrix3x3 matrix = new Matrix3x3(
+        Matrix3f matrixResult = matrix1.sub(matrix2);
+        Matrix3f matrix = new Matrix3f(
                 -3, -3, 0,
                 3, 1, 1,
                 1, -1, 9);
@@ -63,16 +63,16 @@ public class Matrix3x3Test {
 
     @Test
     void mul() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 4, 3,
                 2, 1, 5,
                 3, 2, 1);
-        Matrix3x3 matrix2 = new Matrix3x3(
+        Matrix3f matrix2 = new Matrix3f(
                 5, 2, 1,
                 4, 3, 2,
                 2, 1, 5);
-        Matrix3x3 matrixResult = matrix2.mulMatrix(matrix1);
-        Matrix3x3 matrix = new Matrix3x3(
+        Matrix3f matrixResult = matrix2.mulMatrix(matrix1);
+        Matrix3f matrix = new Matrix3f(
                 12, 24, 26,
                 16, 23, 29,
                 19, 19, 16);
@@ -81,16 +81,16 @@ public class Matrix3x3Test {
 
     @Test
     void mulX() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 4, 3,
                 2, 1, 5,
                 3, 2, 1);
-        Matrix3x3 matrix2 = new Matrix3x3(
+        Matrix3f matrix2 = new Matrix3f(
                 5, 2, 1,
                 4, 3, 2,
                 2, 1, 5);
-        Matrix3x3 matrixResult = matrix2.mulMatrix(matrix1).mulMatrix(matrix1).add(matrix1);
-        Matrix3x3 matrix = new Matrix3x3(
+        Matrix3f matrixResult = matrix2.mulMatrix(matrix1).mulMatrix(matrix1).add(matrix1);
+        Matrix3f matrix = new Matrix3f(
                 139,  128, 185,
                 151, 146, 197,
                 108, 129, 169);
@@ -99,7 +99,7 @@ public class Matrix3x3Test {
 
     @Test
     void mulVector() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 2, 4, 0,
                 -2, 1, 3,
                 -1, 0, 1);
@@ -111,7 +111,7 @@ public class Matrix3x3Test {
 
     @Test
     void determinant() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 4, 3,
                 2, 1, 5,
                 3, 2, 1);
@@ -120,11 +120,11 @@ public class Matrix3x3Test {
 
     @Test
     void transposition() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 1, 4, 3,
                 2, 1, 5,
                 3, 2, 1);
-        Matrix3x3 matrixTr = new Matrix3x3(
+        Matrix3f matrixTr = new Matrix3f(
                 1, 2, 3,
                 4, 1, 2,
                 3, 5, 1);
@@ -133,11 +133,11 @@ public class Matrix3x3Test {
 
     @Test
     void inverseMatrix() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 2, 5, 7,
                 6, 3, 4,
                 5, -2, -3);
-        Matrix3x3 matrixIn = new Matrix3x3(
+        Matrix3f matrixIn = new Matrix3f(
                 1, -1, 1,
                 -38, 41, -34,
                 27, -29, 24);
@@ -146,7 +146,7 @@ public class Matrix3x3Test {
 
     @Test
     void methodGauss() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 3, 2, -5,
                 2, -1, 3,
                 1, 2, -1);
@@ -161,7 +161,7 @@ public class Matrix3x3Test {
 
     @Test
     void methodGauss2() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 3, 2, -5,
                 0, 0, 0,
                 0, 0, 0);
@@ -176,7 +176,7 @@ public class Matrix3x3Test {
 
     @Test
     void methodGauss_freeVariable() {
-        Matrix3x3 matrix1 = new Matrix3x3(
+        Matrix3f matrix1 = new Matrix3f(
                 3, 2, -5,
                 2, -1, 3,
                 6, 4, -10);

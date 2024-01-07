@@ -1,5 +1,5 @@
 package com.cgvsu.render_engine;
-import com.cgvsu.math.matrix.Matrix4x4;
+import com.cgvsu.math.matrix.Matrix4f;
 
 import com.cgvsu.math.vector.Vector3f;
 
@@ -87,11 +87,11 @@ public class Camera {
         this.up = this.up.add(translation);
     }
 
-    Matrix4x4 getViewMatrix() {
+    Matrix4f getViewMatrix() {
         return GraphicConveyor.lookAt(position, target, up);
     }
 
-    Matrix4x4 getProjectionMatrix() {
+    Matrix4f getProjectionMatrix() {
         return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
     }
 
