@@ -5,19 +5,18 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane fx:id="anchorPane" prefHeight="784.0" stylesheets="@darkTheme.css" prefWidth="1485.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.gui.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="784.0" prefWidth="1485.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.gui.GuiController">
     <Pane prefHeight="784.0" prefWidth="1485.0" AnchorPane.topAnchor="30.0">
-        <Canvas fx:id="canvas" height="784.0" width="1485.0"/>
-        <TableView fx:id="tableView" layoutX="14.0" layoutY="14.0" prefHeight="759.0" prefWidth="244.0">
+        <Canvas fx:id="canvas" height="784.0" width="1485.0" />
+        <TableView fx:id="tableView" layoutX="14.0" layoutY="14.0" prefHeight="759.0" prefWidth="243.0">
             <columns>
-                <TableColumn fx:id="isActive" prefWidth="19.60000705718994"/>
-                <TableColumn fx:id="modelPath" prefWidth="158.3999900817871" text="Model"/>
-                <TableColumn fx:id="isFrozen" prefWidth="62.800018310546875" text="Frozen"/>
+                <TableColumn fx:id="isActive" prefWidth="19.60000705718994" resizable="false" sortable="false" />
+                <TableColumn fx:id="modelPath" prefWidth="158.3999900817871" resizable="false" text="Model" />
+                <TableColumn fx:id="isFrozen" prefWidth="62.800018310546875" resizable="false" text="Frozen" />
             </columns>
         </TableView>
     </Pane>
-    <MenuBar >
+    <MenuBar>
         <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
             <accelerator>
@@ -58,7 +57,7 @@
             </MenuItem>
         </Menu>
         <Menu mnemonicParsing="false" text="Scale">
-            <CustomMenuItem  mnemonicParsing="false" text="Unspecified Action">
+            <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
                 <content>
                     <VBox spacing="10">
                         <Label text="X: " />
@@ -135,5 +134,10 @@
                 </content>
             </CustomMenuItem>
         </Menu>
+      <Menu mnemonicParsing="false" text="Theme">
+        <items>
+          <MenuItem fx:id="darkToggle" mnemonicParsing="false" text="Вкл/выкл тёмную тему" />
+        </items>
+      </Menu>
     </MenuBar>
 </AnchorPane>

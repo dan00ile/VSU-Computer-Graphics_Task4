@@ -26,6 +26,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -33,10 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GuiController {
     public TableView<LoadedModel> tableView;
@@ -44,6 +42,7 @@ public class GuiController {
     public TableColumn<LoadedModel, String> modelPath;
     public TableColumn<LoadedModel, CheckBox> isFrozen;
     public MenuItem scaleMenu;
+    public MenuItem darkToggle;
 
     private float distance = 10;
     private final List<LoadedModel> models = new ArrayList<>();
@@ -63,6 +62,8 @@ public class GuiController {
 
     @FXML
     private Canvas canvas;
+
+    private boolean darkMode;
 
     Model activeMesh = null;
 
@@ -86,6 +87,15 @@ public class GuiController {
             }
         }
     }
+    private void enableDarkMode() {
+        // Примените стили для тёмной темы
+        anchorPane.getStylesheets().add(getClass().getResource("/com/cgvsu/fxml/darkTheme.css").toExternalForm());
+    }
+
+    private void disableDarkMode() {
+        // Удалите стили для тёмной темы
+        anchorPane.getStylesheets().remove(getClass().getResource("/com/cgvsu/fxml/darkTheme.css").toExternalForm());
+    }
     @FXML
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
@@ -95,6 +105,16 @@ public class GuiController {
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnScroll(this::handleScroll);
         tableView.setOnMouseClicked(this::selectModel);
+
+        darkToggle.setOnAction(event -> {
+            if (!darkMode) {
+                enableDarkMode();
+                darkMode = true;
+            } else {
+                disableDarkMode();
+                darkMode = false;
+            }
+        });
 
 
         modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
@@ -136,10 +156,11 @@ public class GuiController {
 
                 try {
                     RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(camera.getNearPlane() * 10),
-                            (int) width, (int) height, new ModelAffine());
+                            (int) width, (int) height, new ModelAffine(), darkMode ? Color.WHITE : Color.BLACK);
                     for (LoadedModel model : models) {
                         if (model.isActive()) {
-                            RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, modelTransformation.get(model));
+                            RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height,
+                                    modelTransformation.get(model), darkMode ? Color.WHITE : Color.BLACK);
                         }
                     }
                 } catch (Exception e) {

@@ -19,7 +19,7 @@ public class RenderEngine {
             final Camera camera,
             final Model mesh,
             final int width,
-            final int height, ModelAffine transformMatr) throws Exception {
+            final int height, ModelAffine transformMatr, Color color) throws Exception {
         Matrix4f modelMatrix = transformMatr.modelMatrix();
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
@@ -42,7 +42,7 @@ public class RenderEngine {
                 Vector2f resultPoint = vertexToPoint(result, width, height);
                 resultPoints.add(resultPoint);
             }
-            graphicsContext.setStroke(Color.color(1,1,1));
+            graphicsContext.setStroke(color);
             for (int vertexInPolygonInd = 1; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 graphicsContext.strokeLine(
                         resultPoints.get(vertexInPolygonInd - 1).getX(),
