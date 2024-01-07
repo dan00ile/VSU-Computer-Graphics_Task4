@@ -72,3 +72,31 @@
 .label {
     -fx-text-fill: white; /* Цвет текста меток */
 }
+
+.button-bar {
+    -fx-background-color: #333;
+}
+
+.button-bar .button {
+    -fx-background-color: #8a8a8a;
+    -fx-text-fill: white;
+}
+
+.button-bar .button:default {
+    -fx-background-color: #8a8a8a;
+}
+
+.choice-box {
+    -fx-background-color: #626262;
+    -fx-text-fill: white;
+}
+
+.choice-box .arrow-button {
+    -fx-background-color: #626262;
+}
+
+.dialog-pane {
+    -fx-background-color: #333;
+    -fx-text-fill: white;
+}
+

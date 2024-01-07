@@ -23,6 +23,7 @@
                 <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
             </accelerator>
             </MenuItem>
+         <MenuItem mnemonicParsing="false" onAction="#onOpenSaveModelMenuItemClick" text="Save Model" />
         </Menu>
         <Menu mnemonicParsing="false" text="Camera Options">
             <MenuItem mnemonicParsing="false" onAction="#handleCameraForward" text="Forward">
@@ -141,3 +142,4 @@
       </Menu>
     </MenuBar>
 </AnchorPane>
+

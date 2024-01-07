@@ -4,6 +4,7 @@ import com.cgvsu.math.vector.Vector2f;
 import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.Polygon;
+import javafx.stage.DirectoryChooser;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,15 @@ public class ObjWriter {
         PrintStream fileWriter = new PrintStream(file);
         fileWriter.println(getContent(model));
 
+    }
+
+    public static void write(Model model, String initialFileName, File selectedDirectory) throws IOException {
+        if (selectedDirectory != null) {
+
+            String fileName = selectedDirectory.getAbsolutePath() + File.separator + initialFileName + ".obj";
+
+            write(model, fileName);
+        }
     }
     public static String getContent(Model model){
         String modelContent = "";

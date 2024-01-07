@@ -10,6 +10,7 @@ import com.cgvsu.math.vector.Vector4f;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelAxis;
 import com.cgvsu.objreader.ObjReader;
+import com.cgvsu.objwriter.ObjWriter;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.Animation;
@@ -20,6 +21,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -27,7 +31,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -43,6 +49,7 @@ public class GuiController {
     public TableColumn<LoadedModel, CheckBox> isFrozen;
     public MenuItem scaleMenu;
     public MenuItem darkToggle;
+    public ChoiceBox modelChoiceBox;
 
     private float distance = 10;
     private final List<LoadedModel> models = new ArrayList<>();
@@ -87,15 +94,15 @@ public class GuiController {
             }
         }
     }
+
     private void enableDarkMode() {
-        // Примените стили для тёмной темы
         anchorPane.getStylesheets().add(getClass().getResource("/com/cgvsu/fxml/darkTheme.css").toExternalForm());
     }
 
     private void disableDarkMode() {
-        // Удалите стили для тёмной темы
         anchorPane.getStylesheets().remove(getClass().getResource("/com/cgvsu/fxml/darkTheme.css").toExternalForm());
     }
+
     @FXML
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
@@ -115,7 +122,6 @@ public class GuiController {
                 darkMode = false;
             }
         });
-
 
         modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
 
@@ -174,6 +180,52 @@ public class GuiController {
         timeline.getKeyFrames().add(frame);
         timeline.play();
     }
+
+    @FXML
+    private void onOpenSaveModelMenuItemClick() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cgvsu/fxml/ModelSelectionDialog.fxml"));
+        Parent root = loader.load();
+
+        ModelSelectionDialog controller = loader.getController();
+        controller.setModels(models);
+
+        Stage dialogStage = new Stage();
+        dialogStage.initOwner(canvas.getScene().getWindow());
+
+        Scene scene = new Scene(root);
+
+        // Включение тёмной темы, если установлен флаг darkMode
+        if (darkMode) {
+            scene.getStylesheets().add(getClass().getResource("/com/cgvsu/fxml/darkTheme.css").toExternalForm());
+        }
+
+        dialogStage.setScene(scene);
+        dialogStage.setTitle("Select Model");
+
+        controller.setDialogStage(dialogStage);
+
+        dialogStage.showAndWait();
+
+        LoadedModel selectedModel = controller.getSelectedModel();
+        if (selectedModel != null) {
+
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setTitle("Save Model");
+
+
+            File file = directoryChooser.showDialog(canvas.getScene().getWindow());
+
+            try {
+                ObjWriter.write(modelTransformation.get(selectedModel).newChangedModel(selectedModel), "resWithTRS", file);
+                ObjWriter.write(selectedModel, "res", file);
+                // todo: обработка ошибок
+            } catch (IOException exception) {
+
+            }
+        }
+
+    }
+
 
     @FXML
     private void onOpenModelMenuItemClick() {
@@ -253,7 +305,7 @@ public class GuiController {
 
         if (mesh != null) {
             distance = mesh.getMaxDistanceFromCenter() * 2;
-            middle = mesh.getCenter();
+            middle = mesh.getCenter().add(modelTransformation.get(mesh).getTranslate());
             camera.setNearPlane(0.1f * distance);
             camera.setFarPlane(10 * distance);
         }

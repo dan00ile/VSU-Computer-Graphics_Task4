@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="95.0" prefWidth="246.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.gui.ModelSelectionDialog">
+    <DialogPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="103.0" prefWidth="246.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+        <content>
+            <VBox alignment="CENTER" spacing="10.0">
+                <ChoiceBox fx:id="modelChoiceBox" prefWidth="150.0" />
+                <ButtonBar prefHeight="42.0" prefWidth="165.0">
+                    <buttons>
+                        <Button cancelButton="true" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onCancel" prefHeight="25.0" text="Cancel" />
+                        <Button contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onSelect" prefHeight="25.0" prefWidth="136.0" text="Select" />
+                    </buttons>
+                </ButtonBar>
+            </VBox>
+        </content>
+    </DialogPane>
+</AnchorPane>
