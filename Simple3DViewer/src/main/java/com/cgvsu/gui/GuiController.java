@@ -10,7 +10,9 @@ import com.cgvsu.math.vector.Vector3f;
 import com.cgvsu.math.vector.Vector4f;
 import com.cgvsu.model.ModelAxis;
 import com.cgvsu.render_engine.RenderEngine;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
@@ -19,6 +21,7 @@ import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -73,7 +76,6 @@ public class GuiController {
     private Timeline timeline;
     private Vector3f lastMove = new Vector3f(0, 0, 0);
     private double mouseX, mouseY;
-    private Pivot pivot = new Pivot();
 
     @FXML
     private void initialize() {
@@ -83,6 +85,27 @@ public class GuiController {
         canvas.setOnMousePressed(this::handleMousePressed);
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnScroll(this::handleScroll);
+
+        modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
+
+        isActive.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getActive()));
+
+        isFrozen.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getFrozen()));
+
+        tableView.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                // Получение выбранной модели
+                LoadedModel selectedModel = tableView.getSelectionModel().getSelectedItem();
+
+                // Ваш код обработки двойного клика
+                if (selectedModel != null) {
+                    if (selectedModel.isActive()) {
+                        setCameraOnMesh(selectedModel);
+                    }
+                }
+            }
+        });
+
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -99,7 +122,9 @@ public class GuiController {
                     RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(camera.getNearPlane() * 10),
                             (int) width, (int) height, new ModelAffine());
                     for (LoadedModel model : models) {
-                        RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, modelTransformation.get(model));
+                        if (model.isActive()) {
+                            RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, modelTransformation.get(model));
+                        }
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -162,11 +187,6 @@ public class GuiController {
         }
     }
 
-    private void setPivotOnMesh(Model mesh) {
-
-        pivot.attachToModel(mesh);
-    }
-
 
     private void checkSpinners() {
         checkRotate();
@@ -174,9 +194,9 @@ public class GuiController {
         checkTranslate();
     }
 
-    private void affineSpinnersReset() {
-        ModelAffine a = (modelTransformation.get(activeMesh) != null ?
-                new ModelAffine(modelTransformation.get(activeMesh)) : new ModelAffine());
+    private void affineSpinnersReset(Model mesh) {
+        ModelAffine a = (modelTransformation.get(mesh) != null ?
+                new ModelAffine(modelTransformation.get(mesh)) : new ModelAffine());
 
         spinnerScaleX.getValueFactory().setValue((double) (a.getScale().getX()));
         spinnerScaleY.getValueFactory().setValue((double) (a.getScale().getY()));
@@ -190,7 +210,7 @@ public class GuiController {
     }
 
     private void setCameraOnMesh(Model mesh) {
-        affineSpinnersReset();
+        affineSpinnersReset(mesh);
         setCameraInitially(mesh, AxisEnum.Z);
     }
 
@@ -256,7 +276,7 @@ public class GuiController {
         Vector3f eyeToTarget = camera.getTarget().sub(lastEye);
         boolean stopFlag = eyeToTarget.length() <= camera.getNearPlane();
 
-        eyeToTarget = eyeToTarget.normalization().mul(distance * 0.1f);
+        eyeToTarget = eyeToTarget.normalize().mul(distance * 0.1f);
 
         // можно удалить
         Vector3f movePosition = new Vector3f(eyeToTarget.getX(), eyeToTarget.getY(), eyeToTarget.getZ());
@@ -272,7 +292,7 @@ public class GuiController {
 
         lastMove = movePosition;
     }
-
+/*
     private void rotateCamera(float deltaX, float deltaY) throws Exception {
         Vector3f lastEye = camera.getPosition();
         AffineBuilder b = new AffineBuilder();
@@ -291,16 +311,78 @@ public class GuiController {
 
     }
 
+ */
+
+    public void rotateCamera(float deltaX, float deltaY) {
+        float rotationSpeed = 360f; // Регулируйте скорость вращения по вашему усмотрению
+        float angleX = deltaX * rotationSpeed;
+        float angleY = deltaY * rotationSpeed;
+
+        // Переводим углы в радианы
+        angleX = (float) Math.toRadians(angleX);
+        angleY = (float) Math.toRadians(angleY);
+
+        // Вращение вокруг вертикальной оси (вверх и вниз)
+        rotateCameraVertical(angleY);
+
+        // Вращение вокруг горизонтальной оси (влево и вправо)
+        rotateCameraHorizontal(angleX);
+    }
+
+    private void rotateCameraVertical(float angle) {
+        // Вычисление нового вектора направления камеры
+        Vector3f direction = camera.getTarget().sub(camera.getPosition());
+        Vector3f right = direction.vectorProduct(camera.getUp()).normalize();
+
+        // Поворот вектора направления
+        Vector3f newDirection = rotate(direction, -angle, right);
+
+        // Пересчет новой позиции камеры
+        camera.setPosition(camera.getTarget().sub(newDirection));
+        camera.setUp(rotate(camera.getUp(), -angle, right));
+    }
+
+    private void rotateCameraHorizontal(float angle) {
+        // Вычисление нового вектора направления камеры
+        Vector3f direction = camera.getTarget().sub(camera.getPosition());
+        Vector3f up = camera.getUp().normalize();
+
+        // Поворот вектора направления
+        Vector3f newDirection = rotate(direction, angle, camera.getUp());
+
+        // Пересчет новой позиции камеры
+        camera.setPosition(camera.getTarget().sub(newDirection));
+        camera.setUp(rotate(camera.getUp(), angle, up));
+    }
+
+
+    public Vector3f rotate(Vector3f my ,float angle, Vector3f axis) {
+        float sinHalfAngle = (float) Math.sin(angle / 2);
+        float cosHalfAngle = (float) Math.cos(angle / 2);
+
+        float rx = axis.getX() * sinHalfAngle;
+        float ry = axis.getY() * sinHalfAngle;
+        float rz = axis.getZ() * sinHalfAngle;
+        float rw = cosHalfAngle;
+
+        Quaternion rotation = new Quaternion(rx, ry, rz, rw);
+        Quaternion conjugate = rotation.conjugate();
+
+        Quaternion result = rotation.mul(my).mul(conjugate);
+
+        return new Vector3f(result.x, result.y, result.z);
+    }
+
     private void translateCamera(float deltaX, float deltaY) {
         Vector3f lastEye = camera.getPosition();
         Vector3f target = camera.getTarget();
 
         // Вычисляем вектор от камеры к цели
-        Vector3f eyeToTarget = lastEye.sub(target).normalization();
+        Vector3f eyeToTarget = lastEye.sub(target).normalize();
 
         // Вычисляем вектор, перпендикулярный вектору от камеры к цели
-        Vector3f up = camera.getUp().normalization();
-        Vector3f right = up.vectorProduct(eyeToTarget).normalization();
+        Vector3f up = camera.getUp().normalize();
+        Vector3f right = up.vectorProduct(eyeToTarget).normalize();
 
         // Перемещаем камеру относительно цели
         Vector3f translation = right.mul(deltaX).add(up.mul(deltaY));
@@ -334,7 +416,11 @@ public class GuiController {
         Vector3f scale = new Vector3f(x, y, z);
 
         try {
-            modelTransformation.get(activeMesh).setScale(scale);
+            for (LoadedModel mesh : models) {
+                if (!mesh.isFrozen()) {
+                    modelTransformation.get(mesh).setScale(scale);
+                }
+            }
         } catch (Exception e) {
 
         }
@@ -364,7 +450,11 @@ public class GuiController {
         Vector3f translate = new Vector3f(x, y, z);
 
         try {
-            modelTransformation.get(activeMesh).setTranslate(translate);
+            for (LoadedModel mesh : models) {
+                if (!mesh.isFrozen()) {
+                    modelTransformation.get(mesh).setTranslate(translate);
+                }
+            }
         } catch (Exception e) {
 
         }
@@ -394,7 +484,11 @@ public class GuiController {
         Vector3f rotate = new Vector3f(x, y, z);
 
         try {
-            modelTransformation.get(activeMesh).setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
+            for (LoadedModel mesh : models) {
+                if (!mesh.isFrozen()) {
+                    modelTransformation.get(mesh).setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
+                }
+            }
         } catch (Exception e) {
 
         }

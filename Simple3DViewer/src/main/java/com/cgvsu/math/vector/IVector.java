@@ -11,7 +11,7 @@ public interface IVector<T extends IVector<T>> {
 
     float length();
 
-    T normalization();
+    T normalize();
 
     float dotProduct(T vector);
 

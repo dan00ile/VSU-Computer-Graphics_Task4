@@ -136,7 +136,7 @@ public class Vector3f implements IVector<Vector3f>{
      * Нормализация вектора
      */
     @Override
-    public Vector3f normalization() {
+    public Vector3f normalize() {
         float len = this.length();
         if (Math.abs(len) < 1e-14) {
             throw new ArithmeticException("This vector cannot be normalized because its length is zero");

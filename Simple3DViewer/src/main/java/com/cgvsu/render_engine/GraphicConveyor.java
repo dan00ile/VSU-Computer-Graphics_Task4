@@ -13,9 +13,9 @@ public class GraphicConveyor {
         Vector3f resultX = up.vectorProduct(resultZ);
         Vector3f resultY = resultZ.vectorProduct(resultX);
 
-        resultX = resultX.normalization();
-        resultY = resultY.normalization();
-        resultZ = resultZ.normalization();
+        resultX = resultX.normalize();
+        resultY = resultY.normalize();
+        resultZ = resultZ.normalize();
 
         float[] matrix = new float[]{
                 resultX.getX(), resultX.getY(), resultX.getZ(), -resultX.dotProduct(eye),

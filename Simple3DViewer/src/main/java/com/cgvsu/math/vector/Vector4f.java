@@ -155,7 +155,7 @@ public class Vector4f implements IVector<Vector4f>{
      * Нормализация вектора
      */
     @Override
-    public Vector4f normalization() {
+    public Vector4f normalize() {
         float len = this.length();
         if (Math.abs(len) < 1e-14) {
             throw new ArithmeticException("This vector cannot be normalized because its length is zero");

@@ -116,7 +116,7 @@ public class Vector2f implements IVector<Vector2f> {
      * Нормализация вектора
      */
     @Override
-    public Vector2f normalization() {
+    public Vector2f normalize() {
         float len = this.length();
         if (len < 1e-14) {
             throw new ArithmeticException("This vector cannot be normalized because its length is zero");
