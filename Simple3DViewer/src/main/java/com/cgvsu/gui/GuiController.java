@@ -1,55 +1,54 @@
 package com.cgvsu.gui;
 
-import com.cgvsu.Pivot;
-import com.cgvsu.affine.AffineBuilder.AffineBuilder;
 import com.cgvsu.affine.AffineBuilder.ModelAffine;
 import com.cgvsu.affine.AffineBuilder.Rotate;
 import com.cgvsu.affine.AxisEnum;
-import com.cgvsu.math.matrix.Matrix4x4;
 import com.cgvsu.math.vector.Vector3f;
-import com.cgvsu.math.vector.Vector4f;
+import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelAxis;
+import com.cgvsu.objreader.ObjReader;
+import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.io.IOException;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.cgvsu.model.Model;
-import com.cgvsu.objreader.ObjReader;
-import com.cgvsu.render_engine.Camera;
 
 public class GuiController {
     public TableView<LoadedModel> tableView;
     public TableColumn<LoadedModel, CheckBox> isActive;
     public TableColumn<LoadedModel, String> modelPath;
     public TableColumn<LoadedModel, CheckBox> isFrozen;
+    public MenuItem scaleMenu;
 
     private float distance = 10;
-    private List<LoadedModel> models = new ArrayList<>();
-    private Map<LoadedModel, ModelAffine> modelTransformation = new HashMap<>();
+    private final List<LoadedModel> models = new ArrayList<>();
+    private final Map<LoadedModel, ModelAffine> modelTransformation = new HashMap<>();
     public Spinner<Double> spinnerScaleY;
     public Spinner<Double> spinnerScaleZ;
     public Spinner<Double> spinnerScaleX;
@@ -68,7 +67,7 @@ public class GuiController {
 
     Model activeMesh = null;
 
-    private Camera camera = new Camera(
+    private final Camera camera = new Camera(
             new Vector3f(0, 0, 10),
             new Vector3f(0, 0, 0),
             1.0F, 1, 0.01F, 100);
@@ -76,6 +75,8 @@ public class GuiController {
     private Timeline timeline;
     private Vector3f lastMove = new Vector3f(0, 0, 0);
     private double mouseX, mouseY;
+
+
 
     @FXML
     private void initialize() {
@@ -86,6 +87,8 @@ public class GuiController {
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnScroll(this::handleScroll);
 
+
+
         modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
 
         isActive.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getActive()));
@@ -94,13 +97,30 @@ public class GuiController {
 
         tableView.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                // Получение выбранной модели
                 LoadedModel selectedModel = tableView.getSelectionModel().getSelectedItem();
 
-                // Ваш код обработки двойного клика
                 if (selectedModel != null) {
                     if (selectedModel.isActive()) {
                         setCameraOnMesh(selectedModel);
+                    }
+                }
+            }
+        });
+
+
+        tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        ObservableList<LoadedModel> selectedModels = tableView.getSelectionModel().getSelectedItems();
+        selectedModels.addListener((ListChangeListener<? super LoadedModel>) c -> {
+            while (c.next()) {
+                if (c.wasAdded()) {
+                    for (LoadedModel model : c.getAddedSubList()) {
+                        model.setSelected(true);
+                    }
+                }
+                if (c.wasRemoved()) {
+                    for (LoadedModel model : c.getRemoved()) {
+                        model.setSelected(false);
                     }
                 }
             }
@@ -119,7 +139,7 @@ public class GuiController {
                 camera.setAspectRatio((float) (width / height));
 
                 try {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(camera.getNearPlane() * 10),
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, ModelAxis.makeAxisModel(20),
                             (int) width, (int) height, new ModelAffine());
                     for (LoadedModel model : models) {
                         if (model.isActive()) {
@@ -160,17 +180,16 @@ public class GuiController {
             LoadedModel newModel = new LoadedModel(activeMesh, fileName.toString());
 
             CheckBox checkBox1 = new CheckBox();
+            checkBox1.setSelected(true);
             newModel.setIsActive(checkBox1);
             CheckBox checkBox2 = new CheckBox();
             checkBox2.setDisable(true);
             newModel.setIsFrozen(checkBox2);
             checkBox1.setOnAction(event -> {
-                // Если checkBox1 выбран, активируем checkBox2, иначе деактивируем
                 checkBox2.setDisable(!checkBox1.isSelected());
                 if (!checkBox1.isSelected()) {
                     checkBox2.setSelected(false);
                 }
-
             });
 
             final ObservableList<LoadedModel> data = tableView.getItems();
@@ -372,7 +391,7 @@ public class GuiController {
 
         return new Vector3f(result.x, result.y, result.z);
     }
-
+// TODO: перемещение камеры зависит от размера модели
     private void translateCamera(float deltaX, float deltaY) {
         Vector3f lastEye = camera.getPosition();
         Vector3f target = camera.getTarget();
@@ -405,8 +424,17 @@ public class GuiController {
                     spinner.getValueFactory().setValue(0.0);
                 }
                 checkScaleSpinner();
+                spinner.getValueFactory().setValue(0.0);
+            });
+
+            spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+
+                spinner.getValueFactory().setValue(1.0);
+
             });
         }
+
+
     }
 
     private void checkScaleSpinner() {
@@ -417,7 +445,7 @@ public class GuiController {
 
         try {
             for (LoadedModel mesh : models) {
-                if (!mesh.isFrozen()) {
+                if (!mesh.isFrozen() && mesh.isSelected()) {
                     modelTransformation.get(mesh).setScale(scale);
                 }
             }
@@ -440,6 +468,12 @@ public class GuiController {
                 }
                 checkTranslateSpinner();
             });
+
+            spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+
+                    spinner.getValueFactory().setValue(0.0);
+
+            });
         }
     }
 
@@ -451,8 +485,12 @@ public class GuiController {
 
         try {
             for (LoadedModel mesh : models) {
-                if (!mesh.isFrozen()) {
-                    modelTransformation.get(mesh).setTranslate(translate);
+                if (!mesh.isFrozen() && mesh.isSelected()) {
+                    ModelAffine affine = modelTransformation.get(mesh);
+
+                    Vector3f oldTranslate = affine.getTranslate();
+
+                    affine.setTranslate(oldTranslate.add( translate));
                 }
             }
         } catch (Exception e) {
@@ -474,6 +512,12 @@ public class GuiController {
                 }
                 checkRotateSpinner();
             });
+
+            spinner.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+
+                spinner.getValueFactory().setValue(0.0);
+
+            });
         }
     }
 
@@ -485,7 +529,7 @@ public class GuiController {
 
         try {
             for (LoadedModel mesh : models) {
-                if (!mesh.isFrozen()) {
+                if (!mesh.isFrozen() && mesh.isSelected()) {
                     modelTransformation.get(mesh).setRotate(Rotate.RotateWayEnum.valueOf("XYZ"), rotate);
                 }
             }
@@ -501,7 +545,7 @@ public class GuiController {
     }
 
     @FXML
-    public void handleCameraBackward() throws Exception {
+    public void handleCameraBackward() {
         setCameraInitially(activeMesh, AxisEnum.Z);
         rotateCamera(0.5f, 0);
     }
@@ -512,7 +556,7 @@ public class GuiController {
     }
 
     @FXML
-    public void handleCameraRight() throws Exception {
+    public void handleCameraRight() {
         setCameraInitially(activeMesh, AxisEnum.X);
         rotateCamera(0.5f, 0);
     }
@@ -523,7 +567,7 @@ public class GuiController {
     }
 
     @FXML
-    public void handleCameraDown() throws Exception {
+    public void handleCameraDown() {
         setCameraInitially(activeMesh, AxisEnum.Y);
         rotateCamera(0, 0.5f);
     }

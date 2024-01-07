@@ -8,6 +8,15 @@ public class LoadedModel extends Model {
     private String modelPath;
     private CheckBox isActive;
     private CheckBox isFrozen;
+    private boolean isSelected;
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
 
     public LoadedModel(Model model, String modelPath) {
         super(model);
