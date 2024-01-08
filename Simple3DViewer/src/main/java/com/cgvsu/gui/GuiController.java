@@ -84,6 +84,8 @@ public class GuiController {
     private Vector3f lastMove = new Vector3f(0, 0, 0);
     private double mouseX, mouseY;
 
+    private Model lastSelectedModel;
+
     private void selectModel(MouseEvent event) {
         if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
             LoadedModel selectedModel = tableView.getSelectionModel().getSelectedItem();
@@ -136,6 +138,7 @@ public class GuiController {
                 while (c.next()) {
                     if (c.wasAdded()) {
                         for (LoadedModel model : c.getAddedSubList()) {
+                            lastSelectedModel = model;
                             model.setSelected(true);
                         }
                     }
@@ -543,34 +546,34 @@ public class GuiController {
 
     @FXML
     public void handleCameraForward() {
-        setCameraInitially(activeMesh, AxisEnum.Z);
+        setCameraInitially(lastSelectedModel, AxisEnum.Z);
     }
 
     @FXML
     public void handleCameraBackward() {
-        setCameraInitially(activeMesh, AxisEnum.Z);
+        setCameraInitially(lastSelectedModel, AxisEnum.Z);
         rotateCamera(0.5f, 0);
     }
 
     @FXML
     public void handleCameraLeft() {
-        setCameraInitially(activeMesh, AxisEnum.X);
+        setCameraInitially(lastSelectedModel, AxisEnum.X);
     }
 
     @FXML
     public void handleCameraRight() {
-        setCameraInitially(activeMesh, AxisEnum.X);
+        setCameraInitially(lastSelectedModel, AxisEnum.X);
         rotateCamera(0.5f, 0);
     }
 
     @FXML
     public void handleCameraUp() {
-        setCameraInitially(activeMesh, AxisEnum.Y);
+        setCameraInitially(lastSelectedModel, AxisEnum.Y);
     }
 
     @FXML
     public void handleCameraDown() {
-        setCameraInitially(activeMesh, AxisEnum.Y);
+        setCameraInitially(lastSelectedModel, AxisEnum.Y);
         rotateCamera(0, 0.5f);
     }
 

@@ -67,7 +67,7 @@ public class AffineBuilder {
             throw new AffineExceptions("Model is null");
         }
 
-        Model model = new Model(model1);/////////////////////////////////////////////////////////
+        Model model = new Model(model1);
 
         changeModel(model);
 
