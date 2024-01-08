@@ -104,6 +104,7 @@ public class GuiController {
         anchorPane.getStylesheets().remove(getClass().getResource("/com/cgvsu/fxml/darkTheme.css").toExternalForm());
     }
 
+
     @FXML
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
@@ -113,6 +114,10 @@ public class GuiController {
         canvas.setOnMouseDragged(this::handleMouseDragged);
         canvas.setOnScroll(this::handleScroll);
         tableView.setOnMouseClicked(this::selectModel);
+
+        modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
+        isActive.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getActive()));
+        isFrozen.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getFrozen()));
 
         darkToggle.setOnAction(event -> {
             if (!darkMode) {
@@ -124,30 +129,23 @@ public class GuiController {
             }
         });
 
-        modelPath.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getModelName()));
-
-        isActive.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getActive()));
-
-        isFrozen.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getFrozen()));
-
-
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         ObservableList<LoadedModel> selectedModels = tableView.getSelectionModel().getSelectedItems();
-        selectedModels.addListener((ListChangeListener<? super LoadedModel>) c -> {
-            while (c.next()) {
-                if (c.wasAdded()) {
-                    for (LoadedModel model : c.getAddedSubList()) {
-                        model.setSelected(true);
+            selectedModels.addListener((ListChangeListener<? super LoadedModel>) c -> {
+                while (c.next()) {
+                    if (c.wasAdded()) {
+                        for (LoadedModel model : c.getAddedSubList()) {
+                            model.setSelected(true);
+                        }
+                    }
+                    if (c.wasRemoved()) {
+                        for (LoadedModel model : c.getRemoved()) {
+                            model.setSelected(false);
+                        }
                     }
                 }
-                if (c.wasRemoved()) {
-                    for (LoadedModel model : c.getRemoved()) {
-                        model.setSelected(false);
-                    }
-                }
-            }
-        });
+            });
 
 
         timeline = new Timeline();

@@ -89,13 +89,12 @@ public class AffineMatrix {
         float x = axis.getX();
         float y = axis.getY();
         float z = axis.getZ();
-        Matrix4f rotationMatrix = new Matrix4f(new float[][]
+
+        return new Matrix4f(new float[][]
                 {{cos + (1 - cos) * x * x, (1 - cos) * x * y - sin * z, (1 - cos) * z * x + sin * y, 0},
                 {(1 - cos) * x * y + sin * z, cos + (1 - cos) * y * y, (1 - cos) * z * y - sin * x, 0},
                 {(1 - cos) * x * z - sin * y, (1 - cos) * y * z + sin * x, cos + (1 - cos) * z * z, 0},
                 {0, 0, 0, 1}});
-
-        return rotationMatrix;
     }
 
 }
