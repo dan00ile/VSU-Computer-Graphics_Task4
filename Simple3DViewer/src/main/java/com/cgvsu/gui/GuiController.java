@@ -50,7 +50,6 @@ public class GuiController {
     public TableColumn<LoadedModel, CheckBox> isFrozen;
     public MenuItem scaleMenu;
     public MenuItem darkToggle;
-    public ChoiceBox modelChoiceBox;
 
     private float distance = 10;
     private final List<LoadedModel> models = new ArrayList<>();
@@ -230,7 +229,15 @@ public class GuiController {
             }
         }
     }
-
+    @FXML
+    public void onDeleteModelsMenuItemClick() {
+        List<LoadedModel> selectedModels = new ArrayList<>(tableView.getSelectionModel().getSelectedItems());
+        tableView.getItems().removeAll(selectedModels);
+        models.removeAll(selectedModels);
+        for (Model model : selectedModels) {
+            modelTransformation.remove(model);
+        }
+    }
 
     @FXML
     private void onOpenModelMenuItemClick() {
@@ -580,5 +587,6 @@ public class GuiController {
         setCameraInitially(lastSelectedModel, AxisEnum.Y);
         rotateCamera(0, 0.5f);
     }
+
 
 }

@@ -144,5 +144,14 @@
                 <MenuItem fx:id="darkToggle" mnemonicParsing="false" text="Вкл/выкл тёмную тему" />
             </items>
         </Menu>
+      <Menu mnemonicParsing="false" text="Delete">
+        <items>
+          <MenuItem onAction="#onDeleteModelsMenuItemClick" mnemonicParsing="false" text="Delete Model(s)">
+              <accelerator>
+                  <KeyCodeCombination alt="UP" code="DELETE" control="UP" meta="UP" shift="UP" shortcut="UP" />
+              </accelerator>
+          </MenuItem>
+        </items>
+      </Menu>
     </MenuBar>
 </AnchorPane>
