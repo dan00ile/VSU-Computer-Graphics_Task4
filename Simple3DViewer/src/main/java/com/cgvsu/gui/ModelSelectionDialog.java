@@ -3,6 +3,7 @@ package com.cgvsu.gui;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -10,6 +11,8 @@ import javafx.util.StringConverter;
 import java.util.List;
 public class ModelSelectionDialog {
 
+    @FXML
+    private CheckBox TRSCheck;
     @FXML
     private ChoiceBox<LoadedModel> modelChoiceBox;
 
@@ -53,6 +56,9 @@ public class ModelSelectionDialog {
         }
     }
 
+    public boolean getTRSCheck() {
+        return TRSCheck.isSelected();
+    }
 
     public LoadedModel getSelectedModel() {
         return selectedModel;

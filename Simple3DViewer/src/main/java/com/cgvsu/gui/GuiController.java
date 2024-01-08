@@ -134,21 +134,21 @@ public class GuiController {
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         ObservableList<LoadedModel> selectedModels = tableView.getSelectionModel().getSelectedItems();
-            selectedModels.addListener((ListChangeListener<? super LoadedModel>) c -> {
-                while (c.next()) {
-                    if (c.wasAdded()) {
-                        for (LoadedModel model : c.getAddedSubList()) {
-                            lastSelectedModel = model;
-                            model.setSelected(true);
-                        }
-                    }
-                    if (c.wasRemoved()) {
-                        for (LoadedModel model : c.getRemoved()) {
-                            model.setSelected(false);
-                        }
+        selectedModels.addListener((ListChangeListener<? super LoadedModel>) c -> {
+            while (c.next()) {
+                if (c.wasAdded()) {
+                    for (LoadedModel model : c.getAddedSubList()) {
+                        lastSelectedModel = model;
+                        model.setSelected(true);
                     }
                 }
-            });
+                if (c.wasRemoved()) {
+                    for (LoadedModel model : c.getRemoved()) {
+                        model.setSelected(false);
+                    }
+                }
+            }
+        });
 
 
         timeline = new Timeline();
@@ -209,6 +209,7 @@ public class GuiController {
         dialogStage.showAndWait();
 
         LoadedModel selectedModel = controller.getSelectedModel();
+        boolean isTRS = controller.getTRSCheck();
         if (selectedModel != null) {
 
             DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -218,8 +219,11 @@ public class GuiController {
             File file = directoryChooser.showDialog(canvas.getScene().getWindow());
 
             try {
-                ObjWriter.write(modelTransformation.get(selectedModel).newChangedModel(selectedModel), "resWithTRS", file);
-                ObjWriter.write(selectedModel, "res", file);
+                if (isTRS) {
+                    ObjWriter.write(modelTransformation.get(selectedModel).newChangedModel(selectedModel), selectedModel.getModelName(), file);
+                } else {
+                    ObjWriter.write(selectedModel, selectedModel.getModelName(), file);
+                }
                 // todo: обработка ошибок
             } catch (IOException exception) {
 

@@ -1,6 +1,6 @@
 package com.cgvsu.render_engine;
-import com.cgvsu.math.matrix.Matrix4f;
 
+import com.cgvsu.math.matrix.Matrix4f;
 import com.cgvsu.math.vector.Vector3f;
 
 
