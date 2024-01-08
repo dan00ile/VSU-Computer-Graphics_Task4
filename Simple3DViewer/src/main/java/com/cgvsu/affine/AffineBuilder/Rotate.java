@@ -28,26 +28,33 @@ public class Rotate {
         this.builder = builder;
     }
 
-    public Rotate byAxisInRadians(AxisEnum axisEnum, double angle) throws Exception {
+    public void byAxisInRadians(AxisEnum axisEnum, double angle) throws Exception {
         builder.addRotate(AffineMatrix.rotateMatrix(axisEnum, angle));
-
-        return this;
     }
 
 
-    public Rotate byAxisInDegrees(AxisEnum axisEnum, double angle) throws Exception {
-        return byAxisInRadians(axisEnum, Math.toRadians(angle));
+    public void byAxisInDegrees(AxisEnum axisEnum, double angle) throws Exception {
+        byAxisInRadians(axisEnum, Math.toRadians(angle));
     }
 
     private void rotate(AxisEnum[] enums, Vector3f angles) throws Exception {
         if (angles == null) {
             throw new AffineExceptions("Angles vector is null");
         }
-        for (AxisEnum e : enums) {
+        for (int i = 0; i < enums.length; i++) {
+            AxisEnum e = enums[i];
+            float angle = 0;
+            if (i == 0) {
+                angle = angles.getX();
+            } else if (i == 1) {
+                angle = angles.getY();
+            } else if (i == 2) {
+                angle = angles.getZ();
+            }
             switch (e) {
-                case X -> byX(angles.getX());
-                case Y -> byY(angles.getY());
-                case Z -> byZ(angles.getZ());
+                case X -> byX(angle);
+                case Y -> byY(angle);
+                case Z -> byZ(angle);
             }
         }
     }

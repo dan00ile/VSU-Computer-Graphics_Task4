@@ -5,6 +5,7 @@ import com.cgvsu.math.vector.Vector3f;
 
 
 public class Camera {
+    Vector3f up = new Vector3f(0F, 1F, 0F);
 
     public Camera(
             final Vector3f position,
@@ -60,8 +61,6 @@ public class Camera {
     public void setFarPlane(float farPlane) {
         this.farPlane = farPlane;
     }
-
-    Vector3f up = new Vector3f(0F, 1F, 0F);
 
     public void setUp(Vector3f up) {
         this.up = up;
